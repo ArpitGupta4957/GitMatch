@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GitMatch - Feed</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#238636",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#0D1117", // Overriding slightly for GitHub look
+                        "card-dark": "#161B22",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 flex flex-col min-h-screen">
+<!-- Header -->
+<header class="sticky top-0 z-50 flex items-center bg-background-light dark:bg-background-dark p-4 border-b border-primary/10 justify-between">
+<div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+<span class="material-symbols-outlined text-primary">terminal</span>
+</div>
+<h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight flex-1 ml-3">GitMatch</h2>
+<div class="flex items-center gap-2">
+<button class="flex size-10 items-center justify-center rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+<button class="flex size-10 items-center justify-center rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-primary rounded-full"></span>
+</button>
+</div>
+</header>
+<!-- Main Content Area (Swipe Feed) -->
+<main class="flex-1 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+<!-- Swipe Indicator Left (Reject) -->
+<div class="absolute left-6 top-1/2 -translate-y-1/2 z-10 opacity-20 flex flex-col items-center gap-2 pointer-events-none">
+<div class="size-14 rounded-full border-2 border-red-500 flex items-center justify-center text-red-500">
+<span class="material-symbols-outlined text-4xl">close</span>
+</div>
+<span class="text-red-500 font-bold text-xs uppercase tracking-widest">Reject</span>
+</div>
+<!-- Swipe Indicator Right (Save) -->
+<div class="absolute right-6 top-1/2 -translate-y-1/2 z-10 opacity-20 flex flex-col items-center gap-2 pointer-events-none">
+<div class="size-14 rounded-full border-2 border-primary flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-4xl">favorite</span>
+</div>
+<span class="text-primary font-bold text-xs uppercase tracking-widest">Save</span>
+</div>
+<!-- Repository Card Stack -->
+<div class="relative w-full max-w-md aspect-[3/4] @container">
+<!-- Background Card (Stacking Effect) -->
+<div class="absolute inset-0 bg-card-dark rounded-xl scale-95 translate-y-4 opacity-50 border border-slate-800 shadow-2xl"></div>
+<!-- Main Top Card -->
+<div class="absolute inset-0 bg-white dark:bg-card-dark rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col">
+<!-- Repo Image/Banner -->
+<div class="h-1/2 w-full bg-slate-100 dark:bg-slate-900 relative">
+<img alt="React framework visual" class="w-full h-full object-cover opacity-60" data-alt="Modern abstract code visualization with glowing particles" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0C3s6XZMXFU5I0_5w1Pyur5EZm6LxK7FDy2cX9jmhoJJ8eZ9x9_yLY4ud-eeWsIouJ0XaMPtheC3FcCuwabGbK4KjBNvfvThdl-tYGgfEBLxex3doN2c3LNCBb7euRobmJ8NSdV-XrsTBG6XldFNM6r3fbIiaU8CP6LBviZioTaehN2KCBeEpZBr-4zTYF_XBA___RkX2lT2hK3xsPiZzktjJv7_flbyaxuPpI31YAYieR91pmsztKcz7ZN_Bdm7iXsZsCvtmYbM"/>
+<div class="absolute inset-0 bg-gradient-to-t from-card-dark via-transparent to-transparent"></div>
+<!-- Owner Avatar -->
+<div class="absolute bottom-4 left-4 flex items-center gap-3">
+<img alt="User profile" class="size-14 rounded-xl border-2 border-card-dark shadow-lg" data-alt="Professional portrait of a software engineer developer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1c6q8SvgS_BlwWN7QZjpNOdKvcUsvDL8NAXOjOOxLz8V4rtC8kZIK486MM1jwHk0MczQyQ_JqFmtz4T4aQoEum9FLysxjIgGtmKci3w32-H6mJJmF-_v3XqeihW7_HcLjfFTjAhkxMptym9vpa1rY-tL4OOTR4zJ8cSyD0PMDODRv6VU8FWYmJYnZgNYcZg1tKXgexZirJjYl4flhLdNbGEHCN3gHVWjFDfSxsl0xILGgQ2mL5rSbfnWOZNoaJMfNwJ-6NWLxR80"/>
+<div>
+<p class="text-white font-bold text-lg leading-tight">facebook / react</p>
+<div class="flex items-center gap-1 text-primary text-xs font-medium bg-primary/20 px-2 py-0.5 rounded-full w-fit mt-1">
+<span class="material-symbols-outlined text-xs">verified</span>
+                                Verified Owner
+                            </div>
+</div>
+</div>
+</div>
+<!-- Repo Content -->
+<div class="flex-1 p-6 flex flex-col">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined text-sm">star</span>
+<span class="text-sm font-semibold">214k</span>
+</div>
+<div class="flex items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined text-sm">fork_right</span>
+<span class="text-sm font-semibold">44k</span>
+</div>
+</div>
+<h3 class="text-xl font-bold mb-2">The library for web and native user interfaces</h3>
+<p class="text-slate-600 dark:text-slate-400 text-sm line-clamp-3 mb-6 leading-relaxed">
+                        React lets you build user interfaces out of individual pieces called components. Create your own React components like Thumbnail, LikeButton, and Video. Then combine them into entire screens, pages, and apps.
+                    </p>
+<!-- Tech Stack Badges -->
+<div class="mt-auto flex flex-wrap gap-2">
+<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold">
+<span class="material-symbols-outlined text-[14px]">code</span> React
+                        </div>
+<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-xs font-bold">
+<span class="material-symbols-outlined text-[14px]">javascript</span> JavaScript
+                        </div>
+<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-primary text-xs font-bold">
+<span class="material-symbols-outlined text-[14px]">settings</span> TypeScript
+                        </div>
+</div>
+</div>
+</div>
+</div>
+<!-- Interaction Buttons (Quick Actions) -->
+<div class="flex items-center justify-center gap-6 mt-10">
+<button class="size-14 rounded-full border-2 border-red-500/30 bg-red-500/10 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all active:scale-90">
+<span class="material-symbols-outlined text-3xl">close</span>
+</button>
+<button class="size-12 rounded-full border border-slate-700 flex items-center justify-center text-slate-400 hover:bg-slate-800 transition-all">
+<span class="material-symbols-outlined">refresh</span>
+</button>
+<button class="size-14 rounded-full border-2 border-primary/30 bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all active:scale-90 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-3xl fill">favorite</span>
+</button>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="sticky bottom-0 w-full border-t border-slate-800 bg-background-light dark:bg-card-dark px-2 pb-6 pt-2">
+<div class="max-w-md mx-auto flex justify-around">
+<a class="flex flex-col items-center gap-1 p-2 text-primary" href="#">
+<span class="material-symbols-outlined fill">home</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Feed</span>
+</a>
+<a class="flex flex-col items-center gap-1 p-2 text-slate-500" href="#">
+<span class="material-symbols-outlined">star</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Matches</span>
+</a>
+<a class="flex flex-col items-center gap-1 p-2 text-slate-500 relative" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Chat</span>
+<div class="absolute top-2 right-2 size-2 bg-primary rounded-full ring-2 ring-card-dark"></div>
+</a>
+<a class="flex flex-col items-center gap-1 p-2 text-slate-500" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Profile</span>
+</a>
+</div>
+</nav>
+</body></html>

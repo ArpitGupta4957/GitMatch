@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#238636",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#131f15",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex min-h-screen flex-col overflow-x-hidden">
+<!-- Header / Top Bar -->
+<header class="sticky top-0 z-50 flex items-center bg-background-light dark:bg-background-dark border-b border-slate-200 dark:border-primary/20 p-4 justify-between">
+<div class="flex items-center gap-3">
+<button class="flex items-center justify-center p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-slate-900 dark:text-slate-100">arrow_back</span>
+</button>
+<div class="flex flex-col">
+<h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight">gitmatch-core</h2>
+<p class="text-xs text-slate-500 dark:text-slate-400">facebook / react</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-primary/20">
+<span class="material-symbols-outlined">share</span>
+</button>
+<button class="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-primary/20">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</header>
+<main class="flex-1 pb-24">
+<!-- Hero Section -->
+<section class="p-4 @container">
+<div class="flex flex-col gap-6">
+<div class="flex items-start gap-4">
+<div class="bg-primary/10 rounded-xl p-4 border border-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-5xl">terminal</span>
+</div>
+<div class="flex-1">
+<h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">gitmatch-core</h1>
+<p class="text-slate-600 dark:text-slate-400 mt-1">The core matching engine for developer networking. Powered by vector embeddings and commit history analysis.</p>
+<div class="flex flex-wrap gap-2 mt-3">
+<span class="px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary border border-primary/20">Public</span>
+<span class="px-2 py-0.5 rounded text-xs font-medium bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400">MIT License</span>
+<span class="px-2 py-0.5 rounded text-xs font-medium bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400">v2.4.0</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-4">
+<div class="flex flex-col gap-1 rounded-xl p-4 bg-slate-100 dark:bg-primary/5 border border-slate-200 dark:border-primary/20">
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase tracking-wider">Stars</p>
+<p class="text-slate-900 dark:text-slate-100 text-xl font-bold">12.8k</p>
+</div>
+<div class="flex flex-col gap-1 rounded-xl p-4 bg-slate-100 dark:bg-primary/5 border border-slate-200 dark:border-primary/20">
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase tracking-wider">Forks</p>
+<p class="text-slate-900 dark:text-slate-100 text-xl font-bold">1.4k</p>
+</div>
+<div class="flex flex-col gap-1 rounded-xl p-4 bg-slate-100 dark:bg-primary/5 border border-slate-200 dark:border-primary/20">
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase tracking-wider">Watchers</p>
+<p class="text-slate-900 dark:text-slate-100 text-xl font-bold">432</p>
+</div>
+</div>
+<button class="flex items-center justify-center gap-2 w-full py-3 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">star</span>
+<span>Star on GitHub</span>
+</button>
+</div>
+</section>
+<!-- Activity Chart (Sparkline Style) -->
+<section class="p-4">
+<div class="bg-slate-100 dark:bg-primary/5 border border-slate-200 dark:border-primary/20 rounded-xl p-4">
+<div class="flex justify-between items-end mb-4">
+<div>
+<h3 class="text-sm font-bold text-slate-900 dark:text-slate-100">Commit Activity</h3>
+<p class="text-xs text-slate-500 dark:text-slate-400">Last 12 months</p>
+</div>
+<div class="text-right">
+<p class="text-primary font-bold text-sm">+24%</p>
+<p class="text-xs text-slate-500 dark:text-slate-400">vs last year</p>
+</div>
+</div>
+<!-- Mock Sparkline with CSS -->
+<div class="flex items-end gap-1 h-16 w-full">
+<div class="flex-1 bg-primary/20 rounded-t-sm" style="height: 40%"></div>
+<div class="flex-1 bg-primary/20 rounded-t-sm" style="height: 60%"></div>
+<div class="flex-1 bg-primary/30 rounded-t-sm" style="height: 35%"></div>
+<div class="flex-1 bg-primary/40 rounded-t-sm" style="height: 80%"></div>
+<div class="flex-1 bg-primary/50 rounded-t-sm" style="height: 55%"></div>
+<div class="flex-1 bg-primary/60 rounded-t-sm" style="height: 90%"></div>
+<div class="flex-1 bg-primary/40 rounded-t-sm" style="height: 75%"></div>
+<div class="flex-1 bg-primary/70 rounded-t-sm" style="height: 65%"></div>
+<div class="flex-1 bg-primary/80 rounded-t-sm" style="height: 100%"></div>
+<div class="flex-1 bg-primary/50 rounded-t-sm" style="height: 45%"></div>
+<div class="flex-1 bg-primary/90 rounded-t-sm" style="height: 85%"></div>
+<div class="flex-1 bg-primary rounded-t-sm" style="height: 95%"></div>
+</div>
+</div>
+</section>
+<!-- Tech Stack -->
+<section class="px-4 py-2">
+<h3 class="text-lg font-bold text-slate-900 dark:text-slate-100 mb-3">Tech Stack</h3>
+<div class="flex flex-wrap gap-2">
+<div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700">
+<span class="w-3 h-3 rounded-full bg-[#3178c6]"></span>
+<span class="text-sm font-medium">TypeScript</span>
+</div>
+<div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700">
+<span class="w-3 h-3 rounded-full bg-[#f1e05a]"></span>
+<span class="text-sm font-medium">JavaScript</span>
+</div>
+<div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700">
+<span class="w-3 h-3 rounded-full bg-[#e34c26]"></span>
+<span class="text-sm font-medium">HTML</span>
+</div>
+<div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700">
+<span class="w-3 h-3 rounded-full bg-[#563d7c]"></span>
+<span class="text-sm font-medium">CSS</span>
+</div>
+</div>
+</section>
+<!-- Contributors -->
+<section class="px-4 py-6">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Contributors</h3>
+<span class="text-sm text-primary font-medium">View All</span>
+</div>
+<div class="flex -space-x-3 overflow-hidden">
+<img alt="User Avatar" class="inline-block h-10 w-10 rounded-full ring-2 ring-background-light dark:ring-background-dark object-cover" data-alt="User profile photo showing a smiling face" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsYzwliOLoM5UvEswoNe0l-4Dv2fNDnZflRtzQVNctgJSnTevpLhbt7EbW189UkLXSOxm23ik4UDmt6i_DYzRnfHQ_qEqbGv6-z-UHNGIa46fMd3cv2W0fZmSJNfjxmItLTvLRSDGfA6xOV-NssGySrX28sDZkqB19IACxULDJ_DfHX48Qq6dK9bmzHAdIY96hefa8TMQJ1L5QuyGMbwKs3RjU4SJAd_LGl6SA33zatFCYKaCbv-HUL21FRvT-z371sTkzkwrzmNk"/>
+<img alt="User Avatar" class="inline-block h-10 w-10 rounded-full ring-2 ring-background-light dark:ring-background-dark object-cover" data-alt="User profile photo showing a smiling woman" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAw-LnCoPbHwBk0XwWQrDuXZh52jfX3PzbzuZkyxR3g3u2gbWzwHXlIqB8Z2u1zbwNc1rdIlBgv2cgcUu6CTN-m9XLURUNy3nnTfE7zzQDUlSkVNs9yJwWoopjYmVCJx58PnRXXb01wc9ONRoNoXX9k97CCE-E3g04DSpIgT6SOsrjRuhucfwCeZ3DMe4H-BDH3DmmtcSb5pik-BsKklaANpQLegbFu6WAjZe9CCua9dPba12qvH2BTVijhnYm41k1BAkSvzGYQszc"/>
+<img alt="User Avatar" class="inline-block h-10 w-10 rounded-full ring-2 ring-background-light dark:ring-background-dark object-cover" data-alt="User profile photo showing a man with glasses" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFH6t-jGxZtYO74yROlxxD34n4QC8-fWHUkK_HXo8Hp70ChjXa1yBLnuK2GEEE2mEvVWXYoWgubqkrc9rrCT-uqI7IMLiQ4TgDpNgU_RVK7GTMK4cauLC55rJikLjryezrZ-Cy1eQmZewt_H9MgEaFEX0mNoeGQwy3n0Sd6pxzxewrOrlh9p3mr0mnSIbalFQLoBxSnivJZ0B7edF00b_eTq1AYKapL6r9omdVzi2zsgI5SnXfco5BJ1rDYoNAASQ30y2hmdmxowE"/>
+<img alt="User Avatar" class="inline-block h-10 w-10 rounded-full ring-2 ring-background-light dark:ring-background-dark object-cover" data-alt="User profile photo of a young man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDswSfACWehvgIDIXqy9bE5BX5Ma6199zpqXvoNI52SLLm8JceWILcjEOkumxpOGm4ifhhxFsDonGpYL9P8NG7NQFTz2w1C1OHDhfZpFrzbVGPhWiQKXvOtuyYBIx0Z9_MwmlEuBp7JqhtAoJZ5nL-YQb4iNUqN1UW4PswJfPwZnkmApTHBXpIr0ST18xlKEfmhdbEyoLbdLurLK8JoHYvEdsFGWV6LqofdahTtX3iyWuMSOAObJJECDDh2kmhfIEVNJ80ozRDzc9U"/>
+<div class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800 text-xs font-bold ring-2 ring-background-light dark:ring-background-dark">+82</div>
+</div>
+</section>
+<!-- README Snippet -->
+<section class="px-4">
+<div class="bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-primary/10 rounded-xl overflow-hidden">
+<div class="flex items-center gap-2 px-4 py-2 border-b border-slate-200 dark:border-primary/10 bg-slate-200/50 dark:bg-primary/5">
+<span class="material-symbols-outlined text-sm">menu_book</span>
+<span class="text-xs font-bold uppercase tracking-wider">README.md</span>
+</div>
+<div class="p-4 prose dark:prose-invert">
+<h2 class="text-xl font-bold mb-2">Getting Started</h2>
+<p class="text-sm text-slate-600 dark:text-slate-400 mb-4">Install the dependencies and start the development server to begin contributing.</p>
+<div class="bg-black/80 rounded-lg p-3 font-mono text-xs text-green-400 overflow-x-auto">
+<code>$ npm install gitmatch-core<br/>$ npm run dev</code>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400 mt-4">For detailed documentation, please visit our Wiki page.</p>
+</div>
+<button class="w-full py-3 text-sm font-bold text-primary border-t border-slate-200 dark:border-primary/10 hover:bg-primary/5 transition-colors">
+                        Read Full Documentation
+                    </button>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 right-0 z-50 bg-background-light dark:bg-[#1d2f21] border-t border-slate-200 dark:border-[#29422e] px-4 pb-6 pt-2">
+<div class="flex gap-2">
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined fill-1">explore</span>
+<p class="text-xs font-medium leading-normal">Explore</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 dark:text-[#9bc0a2]" href="#">
+<span class="material-symbols-outlined">group</span>
+<p class="text-xs font-medium leading-normal">Matches</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 dark:text-[#9bc0a2]" href="#">
+<span class="material-symbols-outlined">star</span>
+<p class="text-xs font-medium leading-normal">Stars</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 dark:text-[#9bc0a2]" href="#">
+<span class="material-symbols-outlined">person</span>
+<p class="text-xs font-medium leading-normal">Profile</p>
+</a>
+</div>
+</nav>
+</div>
+</body></html>
