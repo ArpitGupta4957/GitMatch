@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'supabase_service.dart';
 import '../models/repo_model.dart';
@@ -7,7 +10,7 @@ class RepoService {
 
   /// Fetch repos for feed (paginated)
   Future<List<RepoModel>> fetchFeed({
-    int page = 0,
+    int page = 1,
     int pageSize = 10,
     List<String>? techFilter,
   }) async {
@@ -16,19 +19,69 @@ class RepoService {
           .from('repositories')
           .select()
           .order('stars', ascending: false)
-          .range(page * pageSize, (page + 1) * pageSize - 1);
+          .range((page - 1) * pageSize, page * pageSize - 1);
 
       final response = await query;
       return (response as List)
           .map((json) => RepoModel.fromJson(json))
           .toList();
     } catch (e) {
-      // Return demo data if DB not configured
-      return _getDemoRepos();
+      // Fallback: Fetch directly from GitHub API
+      return _fetchFromGitHubApi(page, pageSize, techFilter);
     }
   }
 
-  /// Fetch single repo by ID
+  Future<List<RepoModel>> _fetchFromGitHubApi(int page, int pageSize, List<String>? techFilter) async {
+    try {
+      final token = dotenv.env['GITHUB_API_TOKEN'];
+      final Map<String, String> headers = {
+        'Accept': 'application/vnd.github.v3+json',
+      };
+      if (token != null && token.isNotEmpty) {
+        headers['Authorization'] = 'Bearer $token'; // Removed 'token ' prefix as 'Bearer ' is standard, but GitHub accepts 'token ' or 'Bearer '
+      }
+
+      // Build search query
+      String q = 'stars:>1000';
+      if (techFilter != null && techFilter.isNotEmpty) {
+        q += ' language:${techFilter.first}';
+      }
+
+      final url = Uri.parse(
+          'https://api.github.com/search/repositories?q=$q&sort=stars&order=desc&per_page=$pageSize&page=$page');
+      
+      final response = await http.get(url, headers: headers);
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final items = data['items'] as List;
+        
+        return items.map((item) {
+          return RepoModel(
+            id: item['id'].toString(),
+            name: item['name'] ?? '',
+            owner: item['owner']['login'] ?? '',
+            description: item['description'] ?? 'No description provided.',
+            longDescription: null,
+            stars: item['stargazers_count'] ?? 0,
+            forks: item['forks_count'] ?? 0,
+            watchers: item['watchers_count'] ?? 0,
+            techStack: item['language'] != null ? [item['language']] : [],
+            isVerified: false,
+            isPublic: !(item['private'] ?? false),
+            license: item['license']?['name'],
+            version: item['default_branch'],
+            commitGrowth: null,
+            githubUrl: item['html_url'],
+          );
+        }).toList();
+      } else {
+        return _getDemoRepos();
+      }
+    } catch (_) {
+      return _getDemoRepos();
+    }
+  }
   Future<RepoModel?> fetchById(String id) async {
     try {
       final response = await _client

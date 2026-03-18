@@ -1,15 +1,23 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SupabaseService {
-  static const String _supabaseUrl = 'https://YOUR_PROJECT_URL.supabase.co';
-  static const String _supabaseAnonKey = 'YOUR_ANON_KEY';
+  SupabaseService._();
 
   static SupabaseClient get client => Supabase.instance.client;
 
   static Future<void> initialize() async {
+    final url = dotenv.env['SUPABASE_URL'] ?? '';
+    final anonKey = dotenv.env['SUPABASE_ANON_KEY'] ?? '';
+    
+    if (url.isEmpty || anonKey.isEmpty) {
+      print('WARNING: Supabase credentials not found in .env');
+      return;
+    }
+
     await Supabase.initialize(
-      url: _supabaseUrl,
-      anonKey: _supabaseAnonKey,
+      url: url,
+      anonKey: anonKey,
     );
   }
 

@@ -6,10 +6,12 @@ import 'providers/feed_provider.dart';
 import 'providers/swipe_provider.dart';
 import 'providers/profile_provider.dart';
 import 'providers/saved_provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/splash/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
 
   // Note: Initialize Supabase here when credentials are ready:
   // await SupabaseService.initialize();
