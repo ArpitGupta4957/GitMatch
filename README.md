@@ -28,7 +28,6 @@ GitMatch is a clean-architecture Flutter application designed for developers to 
 |---|---|---|---|---|
 | ![Onboarding](docs/screens/onboarding.png) | ![Dashboard](docs/screens/home.png) | ![Swipe](docs/screens/swipe.png) | ![Hackathon](docs/screens/hackathon.png) | ![Mentorship](docs/screens/mentorship.png) |
 
-*(Note: Replace `docs/screens/*.png` with actual screenshots)*
 
 ---
 
@@ -207,23 +206,6 @@ flutter run
 flutter analyze    # Static analysis — 0 errors ✅
 flutter test       # Core app initialization logic
 ```
-
----
-
-## 🗺️ Roadmap
-
-- [x] Initial Clean Architecture scaffolding
-- [x] Provider implementations and Service Layers
-- [x] GitHub Dark Theme UI matching Material 3 spec
-- [x] Tinder-style swipeable card interactions
-- [x] Rate Limiter configurations 
-- [x] Detail Views and Analytics
-- [x] Multi-tab Saved Items panel
-- [x] Profile Management and settings
-- [ ] Direct Supabase database sync (schema integration)
-- [ ] Real-time Chat capabilities for Matchmaking
-- [ ] Automated push notifications
-- [ ] Complex recommendation matching algorithms (AI based)
 
 ---
 
