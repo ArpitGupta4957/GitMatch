@@ -16,14 +16,31 @@ class OpenSourceFilterScreen extends StatefulWidget {
 
 class _OpenSourceFilterScreenState extends State<OpenSourceFilterScreen> {
   String _selectedDifficulty = 'Any';
-  final List<String> _difficulties = ['Any', 'Beginner', 'Intermediate', 'Advanced'];
+  final List<String> _difficulties = [
+    'Any',
+    'Beginner',
+    'Intermediate',
+    'Advanced',
+  ];
 
   String _selectedSize = 'Any';
-  final List<String> _sizes = ['Any', '<1K Stars', '1K-10K Stars', '>10K Stars'];
+  final List<String> _sizes = [
+    'Any',
+    '<1K Stars',
+    '1K-10K Stars',
+    '>10K Stars',
+  ];
 
-  List<String> _selectedStack = [];
+  final List<String> _selectedStack = [];
   final List<String> _techOptions = [
-    'Flutter', 'React', 'Python', 'Node.js', 'Go', 'Rust', 'Java', 'C++'
+    'Flutter',
+    'React',
+    'Python',
+    'Node.js',
+    'Go',
+    'Rust',
+    'Java',
+    'C++',
   ];
 
   @override
@@ -63,13 +80,15 @@ class _OpenSourceFilterScreenState extends State<OpenSourceFilterScreen> {
                   selectedColor: AppColors.accent.withValues(alpha: 0.2),
                   checkmarkColor: AppColors.accent,
                   labelStyle: TextStyle(
-                    color: isSelected ? AppColors.accent : AppColors.textPrimary,
+                    color: isSelected
+                        ? AppColors.accent
+                        : AppColors.textPrimary,
                   ),
                 );
               }).toList(),
             ),
             const SizedBox(height: 32),
-            
+
             Text('Difficulty Level', style: AppTextStyles.heading4),
             const SizedBox(height: 12),
             Wrap(
@@ -111,7 +130,9 @@ class _OpenSourceFilterScreenState extends State<OpenSourceFilterScreen> {
               onPressed: () {
                 context.read<FeedProvider>().loadRepos(
                   techFilter: _selectedStack.isNotEmpty ? _selectedStack : null,
-                  difficulty: _selectedDifficulty == 'Any' ? null : _selectedDifficulty,
+                  difficulty: _selectedDifficulty == 'Any'
+                      ? null
+                      : _selectedDifficulty,
                   size: _selectedSize == 'Any' ? null : _selectedSize,
                 );
                 Navigator.pushReplacement(

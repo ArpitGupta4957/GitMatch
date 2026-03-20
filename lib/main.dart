@@ -8,13 +8,14 @@ import 'providers/profile_provider.dart';
 import 'providers/saved_provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/splash/splash_screen.dart';
+import 'services/supabase_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
 
-  // Note: Initialize Supabase here when credentials are ready:
-  // await SupabaseService.initialize();
+  // Initialize Supabase using credentials from .env
+  await SupabaseService.initialize();
 
   runApp(const GitMatchApp());
 }
@@ -24,13 +25,17 @@ class GitMatchApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final swipeProvider = SwipeProvider();
+    final savedProvider = SavedProvider();
+    final authProvider = AuthProvider()..init(swipeProvider, savedProvider);
+
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider.value(value: authProvider),
         ChangeNotifierProvider(create: (_) => FeedProvider()),
-        ChangeNotifierProvider(create: (_) => SwipeProvider()),
+        ChangeNotifierProvider.value(value: swipeProvider),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
-        ChangeNotifierProvider(create: (_) => SavedProvider()),
+        ChangeNotifierProvider.value(value: savedProvider),
       ],
       child: MaterialApp(
         title: 'GitMatch',

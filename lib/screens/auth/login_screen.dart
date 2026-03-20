@@ -5,10 +5,24 @@ import '../../core/constants/app_strings.dart';
 import '../../core/constants/spacing.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/animated_button.dart';
-import '../onboarding/onboarding_screen.dart';
+import '../home/home_dashboard.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
+
+  Future<void> _handleGitHubLogin(BuildContext context) async {
+    final auth = context.read<AuthProvider>();
+    final success = await auth.signInWithGitHub();
+    if (!success && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('GitHub sign-in failed. Check your OAuth setup.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+    // Navigation is handled by the auth state listener in main.dart / splash
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -118,30 +132,36 @@ class LoginScreen extends StatelessWidget {
               const Spacer(flex: 2),
 
               // Continue with GitHub button
-              AnimatedButton(
-                label: AppStrings.continueWithGitHub,
-                iconWidget: const Icon(Icons.code, color: Colors.white, size: 24),
+              Consumer<AuthProvider>(
+                builder: (context, auth, _) {
+                  return auth.isLoading
+                      ? const CircularProgressIndicator(color: AppColors.accent)
+                      : AnimatedButton(
+                          label: AppStrings.continueWithGitHub,
+                          iconWidget: const Icon(Icons.code, color: Colors.white, size: 24),
+                          onPressed: () => _handleGitHubLogin(context),
+                        );
+                },
+              ),
+
+              const SizedBox(height: 16),
+
+              // Demo mode fallback
+              TextButton(
                 onPressed: () {
-                  final authProvider = context.read<AuthProvider>();
-                  // Try GitHub OAuth, fallback to demo mode
-                  authProvider.signInWithGitHub().then((success) {
-                    if (!success && context.mounted) {
-                      authProvider.enterDemoMode();
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (_) => const OnboardingScreen(),
-                        ),
-                      );
-                    }
-                  });
-                  // In demo mode, skip directly
-                  authProvider.enterDemoMode();
+                  context.read<AuthProvider>().enterDemoMode();
                   Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (_) => const OnboardingScreen(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const HomeDashboard()),
                   );
                 },
+                child: Text(
+                  'Continue in Demo Mode',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 13,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
               ),
 
               const SizedBox(height: 32),
