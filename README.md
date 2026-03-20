@@ -26,7 +26,7 @@ GitMatch is a clean-architecture Flutter application designed for developers to 
 
 | Onboarding | Home Dashboard | Repo Feed (Swipe) | Hackathon Feed | Mentorship |
 |---|---|---|---|---|
-| ![Onboarding](docs/screens/onboarding.png) | ![Dashboard](docs/screens/home.png) | ![Swipe](docs/screens/swipe.png) | ![Hackathon](docs/screens/hackathon.png) | ![Mentorship](docs/screens/mentorship.png) |
+| ![Onboarding](assets/onboarding_flow/screen.png) | ![Dashboard](assets/home_dashboard/screen.png) | ![Repo](assets/repository_feed/screen.png) | ![Hackathon](assets/hackathon_feed/screen.png) | ![Mentorship](assets/mentorship_feed/screen.png) |
 
 
 ---
