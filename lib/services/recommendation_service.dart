@@ -1,9 +1,13 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/repo_model.dart';
 import '../models/hackathon_model.dart';
 import '../models/mentor_model.dart';
 import '../models/user_model.dart';
+import 'supabase_service.dart';
 
 class RecommendationService {
+  static final SupabaseClient _client = SupabaseService.client;
+
   /// Score a repo based on user's tech stack match
   static double scoreRepo(RepoModel repo, UserModel user) {
     if (user.skills.isEmpty) return 0.5;
@@ -14,7 +18,7 @@ class RecommendationService {
     return matchCount / user.skills.length;
   }
 
-  /// Score a hackathon based on user's interests and tech stack
+  /// Score a hackathon (UserModel) based on matching skills
   static double scoreHackathon(HackathonModel hackathon, UserModel user) {
     if (user.skills.isEmpty) return 0.5;
     final techMatch = hackathon.techStack
@@ -24,7 +28,7 @@ class RecommendationService {
     return techMatch / user.skills.length;
   }
 
-  /// Score a mentor based on skill overlap
+  /// Score a mentor (UserModel) based on skill overlap
   static double scoreMentor(MentorModel mentor, UserModel user) {
     if (user.skills.isEmpty) return 0.5;
     final matchCount = mentor.skills
@@ -51,16 +55,68 @@ class RecommendationService {
     return items.where((item) => !swipedIds.contains(getId(item))).toList();
   }
 
-  /// Get demo mentors
-  static List<MentorModel> getDemoMentors() {
-    return [
+  /// Fetch mentors from `profiles` where mentorship_mode=true.
+  /// Maps UserModel → MentorModel for the existing UI.
+  static Future<List<MentorModel>> getMentors(
+      {String? domain, String? level}) async {
+    try {
+      var query = _client
+          .from('profiles')
+          .select()
+          .eq('mentorship_mode', true);
+
+      // Filter by experience level stored in profiles.experience_level
+      if (level != null && level != 'Any') {
+        query = query.eq('experience_level', level);
+      }
+
+      final response = await query;
+      var users = (response as List)
+          .map((json) => UserModel.fromJson(json))
+          .toList();
+
+      // Domain filter: match against skills (client-side for now)
+      if (domain != null && domain != 'Any') {
+        users = users
+            .where((u) =>
+                u.skills.any((s) => s.toLowerCase().contains(domain.toLowerCase())) ||
+                u.interests.any((i) => i.toLowerCase().contains(domain.toLowerCase())))
+            .toList();
+      }
+
+      return users.map((u) => _mapUserToMentor(u)).toList();
+    } catch (e) {
+      return getDemoMentors(domain: domain, level: level);
+    }
+  }
+
+  static MentorModel _mapUserToMentor(UserModel user) {
+    return MentorModel(
+      id: user.id,
+      name: user.displayName ?? user.username,
+      title: user.role ?? 'Developer',
+      company: null,
+      avatarUrl: user.avatarUrl,
+      skills: user.skills,
+      bio: user.bio,
+      lookingFor: user.bio,
+      isOffering: user.mentorshipMode,
+      level: user.experienceLevel,
+      githubUrl: user.githubUrl,
+    );
+  }
+
+  /// Demo fallback with local filter support
+  static List<MentorModel> getDemoMentors({String? domain, String? level}) {
+    var mentors = [
       MentorModel(
         id: 'm1',
         name: 'Alex Rivera',
         title: 'Senior Software Architect',
         company: 'Tech Corp',
         skills: ['Python', 'Microservices', 'AWS'],
-        lookingFor: 'Aspiring devs interested in high-scale distributed systems and clean code principles.',
+        lookingFor:
+            'Aspiring devs interested in high-scale distributed systems.',
         isOffering: true,
         level: 'Senior',
       ),
@@ -68,19 +124,18 @@ class RecommendationService {
         id: 'm2',
         name: 'Sarah Chen',
         title: 'Principal Frontend Engineer',
-        company: null,
         skills: ['React', 'TypeScript', 'Web Perf'],
-        lookingFor: 'Developers wanting to master modern frontend architecture and performance optimization.',
+        lookingFor:
+            'Developers wanting to master modern frontend architecture.',
         isOffering: true,
-        level: 'Principal',
+        level: 'Senior',
       ),
       MentorModel(
         id: 'm3',
         name: 'Jordan Smith',
         title: 'Full Stack Developer',
-        company: null,
         skills: ['Go', 'Kubernetes', 'Docker'],
-        lookingFor: 'Looking for a mentor in cloud-native development and container orchestration.',
+        lookingFor: 'Looking for a mentor in cloud-native development.',
         isOffering: false,
         level: 'Junior',
       ),
@@ -90,10 +145,27 @@ class RecommendationService {
         title: 'ML Engineer',
         company: 'AI Labs',
         skills: ['Python', 'TensorFlow', 'PyTorch'],
-        lookingFor: 'Students interested in machine learning, deep learning, and AI research.',
+        lookingFor: 'Students interested in machine learning and AI research.',
         isOffering: true,
         level: 'Senior',
       ),
     ];
+
+    if (level != null && level != 'Any') {
+      mentors = mentors
+          .where((m) => m.level?.toLowerCase() == level.toLowerCase())
+          .toList();
+    }
+    if (domain != null && domain != 'Any') {
+      mentors = mentors
+          .where((m) =>
+              (m.lookingFor?.toLowerCase().contains(domain.toLowerCase()) ??
+                  false) ||
+              m.skills.any(
+                  (s) => s.toLowerCase().contains(domain.toLowerCase())))
+          .toList();
+    }
+
+    return mentors;
   }
 }

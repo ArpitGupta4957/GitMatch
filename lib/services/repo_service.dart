@@ -13,6 +13,8 @@ class RepoService {
     int page = 1,
     int pageSize = 10,
     List<String>? techFilter,
+    String? difficulty,
+    String? size,
   }) async {
     try {
       var query = _client
@@ -26,12 +28,11 @@ class RepoService {
           .map((json) => RepoModel.fromJson(json))
           .toList();
     } catch (e) {
-      // Fallback: Fetch directly from GitHub API
-      return _fetchFromGitHubApi(page, pageSize, techFilter);
+      return _fetchFromGitHubApi(page, pageSize, techFilter, difficulty, size);
     }
   }
 
-  Future<List<RepoModel>> _fetchFromGitHubApi(int page, int pageSize, List<String>? techFilter) async {
+  Future<List<RepoModel>> _fetchFromGitHubApi(int page, int pageSize, List<String>? techFilter, String? difficulty, String? size) async {
     try {
       final token = dotenv.env['GITHUB_API_TOKEN'];
       final Map<String, String> headers = {
@@ -41,10 +42,30 @@ class RepoService {
         headers['Authorization'] = 'Bearer $token'; // Removed 'token ' prefix as 'Bearer ' is standard, but GitHub accepts 'token ' or 'Bearer '
       }
 
-      // Build search query
-      String q = 'stars:>1000';
+      // Build search query with filters
+      String q = '';
+      
+      // Parse Size
+      if (size == '<1K Stars') {
+        q += 'stars:<1000';
+      } else if (size == '1K-10K Stars') {
+        q += 'stars:1000..10000';
+      } else if (size == '>10K Stars') {
+        q += 'stars:>10000';
+      } else {
+        q += 'stars:>500'; // Default baseline
+      }
+
+      // Parse Tech Stack
       if (techFilter != null && techFilter.isNotEmpty) {
         q += ' language:${techFilter.first}';
+      }
+
+      // Parse Difficulty (using labels as heuristics)
+      if (difficulty == 'Beginner') {
+        q += ' label:"good first issue"';
+      } else if (difficulty == 'Intermediate') {
+        q += ' label:"help wanted"';
       }
 
       final url = Uri.parse(

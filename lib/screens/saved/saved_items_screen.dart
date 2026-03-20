@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/colors.dart';
 import '../../providers/saved_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../detail/detail_page.dart';
 
 class SavedItemsScreen extends StatefulWidget {
@@ -63,7 +64,7 @@ class _ReposList extends StatelessWidget {
             leading: Text(repo.owner[0].toUpperCase(), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textWhite)),
             title: '${repo.owner}/${repo.name}', subtitle: repo.description,
             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DetailPage(repo: repo))),
-            onRemove: () => sp.unsaveRepo(repo.id),
+            onRemove: () => sp.unsaveRepo(repo.id, context.read<AuthProvider>().user?.id ?? ''),
           );
         },
       );
@@ -80,7 +81,7 @@ class _HackathonsList extends StatelessWidget {
         padding: const EdgeInsets.all(16), itemCount: sp.savedHackathons.length,
         itemBuilder: (context, i) {
           final h = sp.savedHackathons[i];
-          return _Tile(leading: const Icon(Icons.emoji_events, color: AppColors.accent), title: h.title, subtitle: h.dateRange, onRemove: () => sp.unsaveHackathon(h.id));
+          return _Tile(leading: const Icon(Icons.emoji_events, color: AppColors.accent), title: h.title, subtitle: h.dateRange, onRemove: () => sp.unsaveHackathon(h.id, context.read<AuthProvider>().user?.id ?? ''));
         },
       );
     });
@@ -96,7 +97,7 @@ class _MentorsList extends StatelessWidget {
         padding: const EdgeInsets.all(16), itemCount: sp.savedMentors.length,
         itemBuilder: (context, i) {
           final m = sp.savedMentors[i];
-          return _Tile(leading: Text(m.name[0], style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.textWhite)), title: m.name, subtitle: m.title, onRemove: () => sp.unsaveMentor(m.id));
+          return _Tile(leading: Text(m.name[0], style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.textWhite)), title: m.name, subtitle: m.title, onRemove: () => sp.unsaveMentor(m.id, context.read<AuthProvider>().user?.id ?? ''));
         },
       );
     });

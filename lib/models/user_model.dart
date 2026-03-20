@@ -8,6 +8,8 @@ class UserModel {
   final String? role; // student, professional, mentor
   final List<String> skills;
   final List<String> interests;
+  final String? experienceLevel; // Junior, Mid-Level, Senior, Staff+
+  final String? availability;    // Upcoming, Live Now, etc.
   final String? githubUrl;
   final String? twitterHandle;
   final bool hackathonMode;
@@ -24,6 +26,8 @@ class UserModel {
     this.role,
     this.skills = const [],
     this.interests = const [],
+    this.experienceLevel,
+    this.availability,
     this.githubUrl,
     this.twitterHandle,
     this.hackathonMode = false,
@@ -42,6 +46,8 @@ class UserModel {
       role: json['role'],
       skills: List<String>.from(json['skills'] ?? []),
       interests: List<String>.from(json['interests'] ?? []),
+      experienceLevel: json['experience_level'],
+      availability: json['availability'],
       githubUrl: json['github_url'],
       twitterHandle: json['twitter_handle'],
       hackathonMode: json['hackathon_mode'] ?? false,
@@ -63,6 +69,8 @@ class UserModel {
       'role': role,
       'skills': skills,
       'interests': interests,
+      'experience_level': experienceLevel,
+      'availability': availability,
       'github_url': githubUrl,
       'twitter_handle': twitterHandle,
       'hackathon_mode': hackathonMode,
@@ -80,6 +88,8 @@ class UserModel {
     String? role,
     List<String>? skills,
     List<String>? interests,
+    String? experienceLevel,
+    String? availability,
     String? githubUrl,
     String? twitterHandle,
     bool? hackathonMode,
@@ -95,6 +105,8 @@ class UserModel {
       role: role ?? this.role,
       skills: skills ?? this.skills,
       interests: interests ?? this.interests,
+      experienceLevel: experienceLevel ?? this.experienceLevel,
+      availability: availability ?? this.availability,
       githubUrl: githubUrl ?? this.githubUrl,
       twitterHandle: twitterHandle ?? this.twitterHandle,
       hackathonMode: hackathonMode ?? this.hackathonMode,

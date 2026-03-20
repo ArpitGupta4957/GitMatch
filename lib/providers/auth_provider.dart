@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
+import 'swipe_provider.dart';
+import 'saved_provider.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
+  SwipeProvider? _swipeProvider;
+  SavedProvider? _savedProvider;
 
   UserModel? _user;
   bool _isLoading = false;
@@ -18,6 +22,12 @@ class AuthProvider extends ChangeNotifier {
 
   AuthProvider() {
     _init();
+  }
+
+  /// Call from main.dart after MultiProvider is set up
+  void init(SwipeProvider swipeProvider, SavedProvider savedProvider) {
+    _swipeProvider = swipeProvider;
+    _savedProvider = savedProvider;
   }
 
   void _init() {
@@ -42,6 +52,12 @@ class AuthProvider extends ChangeNotifier {
     _user = await _authService.getOrCreateProfile();
     _isAuthenticated = _authService.isAuthenticated;
 
+    // Load swipe history and saved items from Supabase for deduplication
+    if (_user != null) {
+      _swipeProvider?.loadSwipeHistory(_user!.id);
+      _savedProvider?.loadSavedItems(_user!.id);
+    }
+
     _isLoading = false;
     notifyListeners();
   }
@@ -61,22 +77,6 @@ class AuthProvider extends ChangeNotifier {
     return success;
   }
 
-  Future<bool> signInWithEmail(String email, String password) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
-    try {
-      await _authService.signInWithEmail(email, password);
-      await loadProfile();
-      return true;
-    } catch (e) {
-      _errorMessage = e.toString();
-      _isLoading = false;
-      notifyListeners();
-      return false;
-    }
-  }
 
   Future<void> signOut() async {
     await _authService.signOut();

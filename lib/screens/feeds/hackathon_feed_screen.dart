@@ -4,6 +4,7 @@ import '../../core/constants/colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../../providers/feed_provider.dart';
 import '../../providers/saved_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../models/hackathon_model.dart';
 import '../../widgets/loading_widget.dart';
 
@@ -138,12 +139,14 @@ class _HackathonFeedScreenState extends State<HackathonFeedScreen>
                       feedProvider.recordSwipe();
                     },
                     onInterested: () {
-                      context.read<SavedProvider>().saveHackathon(hackathon);
+                      final uid = context.read<AuthProvider>().user?.id ?? '';
+                      context.read<SavedProvider>().saveHackathon(hackathon, uid);
                       feedProvider.removeHackathon(hackathon.id);
                       feedProvider.recordSwipe();
                     },
                     onBookmark: () {
-                      context.read<SavedProvider>().saveHackathon(hackathon);
+                      final uid = context.read<AuthProvider>().user?.id ?? '';
+                      context.read<SavedProvider>().saveHackathon(hackathon, uid);
                     },
                   );
                 },

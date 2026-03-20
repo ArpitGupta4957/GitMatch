@@ -7,9 +7,10 @@ import '../../core/constants/spacing.dart';
 import '../../providers/feed_provider.dart';
 
 import '../../widgets/github_card.dart';
+import '../filters/open_source_filter_screen.dart';
+import '../filters/hackathon_filter_screen.dart';
+import '../filters/mentorship_filter_screen.dart';
 import '../feeds/repo_feed_screen.dart';
-import '../feeds/hackathon_feed_screen.dart';
-import '../feeds/mentorship_feed_screen.dart';
 import '../saved/saved_items_screen.dart';
 import '../profile/profile_screen.dart';
 
@@ -180,7 +181,7 @@ class _DashboardHome extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const RepoFeedScreen()),
+                    MaterialPageRoute(builder: (_) => const OpenSourceFilterScreen()),
                   );
                 },
               ),
@@ -207,7 +208,7 @@ class _DashboardHome extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) => const HackathonFeedScreen()),
+                        builder: (_) => const HackathonFilterScreen()),
                   );
                 },
               ),
@@ -234,7 +235,7 @@ class _DashboardHome extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) => const MentorshipFeedScreen()),
+                        builder: (_) => const MentorshipFilterScreen()),
                   );
                 },
               ),

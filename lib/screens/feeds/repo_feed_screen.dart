@@ -9,6 +9,7 @@ import '../../models/repo_model.dart';
 import '../../models/swipe_model.dart';
 import '../../widgets/swipe_indicator.dart';
 import '../../widgets/loading_widget.dart';
+import '../../providers/auth_provider.dart';
 import '../detail/detail_page.dart';
 
 class RepoFeedScreen extends StatefulWidget {
@@ -30,8 +31,9 @@ class _RepoFeedScreenState extends State<RepoFeedScreen> {
   }
 
   void _onSwipeLeft(RepoModel repo) {
+    final uid = context.read<AuthProvider>().user?.id ?? '';
     context.read<SwipeProvider>().recordSwipe(
-      userId: 'demo',
+      userId: uid,
       itemId: repo.id,
       itemType: SwipeItemType.repo,
       direction: SwipeDirection.left,
@@ -41,13 +43,14 @@ class _RepoFeedScreenState extends State<RepoFeedScreen> {
   }
 
   void _onSwipeRight(RepoModel repo) {
+    final uid = context.read<AuthProvider>().user?.id ?? '';
     context.read<SwipeProvider>().recordSwipe(
-      userId: 'demo',
+      userId: uid,
       itemId: repo.id,
       itemType: SwipeItemType.repo,
       direction: SwipeDirection.right,
     );
-    context.read<SavedProvider>().saveRepo(repo);
+    context.read<SavedProvider>().saveRepo(repo, uid);
     context.read<FeedProvider>().recordSwipe();
     context.read<FeedProvider>().removeRepo(repo.id);
   }

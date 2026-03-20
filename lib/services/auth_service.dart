@@ -18,22 +18,6 @@ class AuthService {
     }
   }
 
-  /// Sign in with email and password
-  Future<AuthResponse> signInWithEmail(String email, String password) async {
-    return await _client.auth.signInWithPassword(
-      email: email,
-      password: password,
-    );
-  }
-
-  /// Sign up with email and password
-  Future<AuthResponse> signUpWithEmail(String email, String password) async {
-    return await _client.auth.signUp(
-      email: email,
-      password: password,
-    );
-  }
-
   /// Sign out
   Future<void> signOut() async {
     await _client.auth.signOut();
@@ -51,14 +35,14 @@ class AuthService {
   /// Listen to auth state changes
   Stream<AuthState> get onAuthStateChange => _client.auth.onAuthStateChange;
 
-  /// Get or create user profile in database
+  /// Get or create user profile in the `profiles` table
   Future<UserModel?> getOrCreateProfile() async {
     final user = currentUser;
     if (user == null) return null;
 
     try {
       final response = await _client
-          .from('users')
+          .from('profiles')
           .select()
           .eq('id', user.id)
           .maybeSingle();
@@ -67,7 +51,7 @@ class AuthService {
         return UserModel.fromJson(response);
       }
 
-      // Create new profile
+      // Create new profile (trigger usually handles this, but as a safety net)
       final newProfile = {
         'id': user.id,
         'email': user.email ?? '',
@@ -78,27 +62,29 @@ class AuthService {
         'display_name': user.userMetadata?['full_name'] ??
             user.userMetadata?['name'],
         'avatar_url': user.userMetadata?['avatar_url'],
+        'github_url': 'https://github.com/${user.userMetadata?['user_name']}',
       };
 
-      await _client.from('users').insert(newProfile);
+      await _client.from('profiles').insert(newProfile);
       return UserModel.fromJson(newProfile);
     } catch (e) {
-      // Return a minimal profile if DB isn't set up
+      // Return a minimal profile using auth data if DB isn't reachable
       return UserModel(
         id: user.id,
         username: user.userMetadata?['user_name'] ?? 'user',
         email: user.email ?? '',
         displayName: user.userMetadata?['full_name'],
         avatarUrl: user.userMetadata?['avatar_url'],
+        githubUrl: 'https://github.com/${user.userMetadata?['user_name']}',
       );
     }
   }
 
-  /// Update user profile
+  /// Update user profile in the `profiles` table
   Future<void> updateProfile(UserModel profile) async {
     try {
       await _client
-          .from('users')
+          .from('profiles')
           .update(profile.toJson())
           .eq('id', profile.id);
     } catch (e) {
@@ -106,14 +92,14 @@ class AuthService {
     }
   }
 
-  /// Check if user has completed onboarding
+  /// Check if user has completed onboarding (has role + skills set)
   Future<bool> hasCompletedOnboarding() async {
     final user = currentUser;
     if (user == null) return false;
 
     try {
       final response = await _client
-          .from('users')
+          .from('profiles')
           .select('role, skills, interests')
           .eq('id', user.id)
           .maybeSingle();

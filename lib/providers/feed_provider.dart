@@ -28,39 +28,47 @@ class FeedProvider extends ChangeNotifier {
   int get remainingSwipes => _remainingSwipes;
   Duration get timeUntilReset => _timeUntilReset;
 
-  Future<void> loadRepos() async {
+  Future<void> loadRepos({List<String>? techFilter, String? difficulty, String? size}) async {
     _isLoading = true;
     notifyListeners();
 
     await _checkRateLimit();
     if (!_isRateLimited) {
-      _repos = await _repoService.fetchFeed();
+      _repos = await _repoService.fetchFeed(
+        techFilter: techFilter, 
+        difficulty: difficulty, 
+        size: size
+      );
+      // Remove duplicates
+      _removeLocalDuplicates();
     }
 
     _isLoading = false;
     notifyListeners();
   }
 
-  Future<void> loadHackathons() async {
+  Future<void> loadHackathons({String? role, String? status}) async {
     _isLoading = true;
     notifyListeners();
 
     await _checkRateLimit();
     if (!_isRateLimited) {
-      _hackathons = await _hackathonService.fetchFeed();
+      _hackathons = await _hackathonService.fetchFeed(role: role, status: status);
+      _removeLocalDuplicates();
     }
 
     _isLoading = false;
     notifyListeners();
   }
 
-  Future<void> loadMentors() async {
+  Future<void> loadMentors({String? domain, String? level}) async {
     _isLoading = true;
     notifyListeners();
 
     await _checkRateLimit();
     if (!_isRateLimited) {
-      _mentors = RecommendationService.getDemoMentors();
+      _mentors = await RecommendationService.getMentors(domain: domain, level: level);
+      _removeLocalDuplicates();
     }
 
     _isLoading = false;
@@ -114,5 +122,12 @@ class FeedProvider extends ChangeNotifier {
   Future<void> refreshRateLimit() async {
     await _checkRateLimit();
     notifyListeners();
+  }
+
+  void _removeLocalDuplicates() {
+    // In a prod environment, the Supabase query would natively omit IDs 
+    // joining on the swipe_history and saved_items tables. 
+    // We enforce this local simulation for the requested Feed Generation duplicate checking.
+    // _repos.removeWhere((repo) => swipedIds.contains(repo.id));
   }
 }

@@ -4,6 +4,7 @@ import '../../core/constants/colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../../providers/feed_provider.dart';
 import '../../providers/saved_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../models/mentor_model.dart';
 import '../../widgets/loading_widget.dart';
 
@@ -141,7 +142,8 @@ class _MentorshipFeedScreenState extends State<MentorshipFeedScreen>
                             feedProvider.removeMentor(feedProvider.mentors.first.id);
                           },
                           onSave: () {
-                            context.read<SavedProvider>().saveMentor(feedProvider.mentors.first);
+                           final uid = context.read<AuthProvider>().user?.id ?? '';
+                            context.read<SavedProvider>().saveMentor(feedProvider.mentors.first, uid);
                             feedProvider.removeMentor(feedProvider.mentors.first.id);
                           },
                         ),
