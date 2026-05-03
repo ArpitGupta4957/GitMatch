@@ -103,3 +103,12 @@ ALTER TABLE public.saved_items ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Anyone can insert saved items" ON public.saved_items FOR INSERT WITH CHECK (true);
 CREATE POLICY "Anyone can view saved items" ON public.saved_items FOR SELECT USING (true);
 CREATE POLICY "Anyone can delete saved items" ON public.saved_items FOR DELETE USING (true);
+
+
+-- 7. Create Keepalive Ping Table
+CREATE TABLE public.keepalive_pings (
+  id BIGSERIAL PRIMARY KEY,
+  source TEXT NOT NULL DEFAULT 'scheduled',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE public.keepalive_pings ENABLE ROW LEVEL SECURITY;
