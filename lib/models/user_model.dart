@@ -8,6 +8,7 @@ class UserModel {
   final String? role; // student, professional, mentor
   final List<String> skills;
   final List<String> interests;
+  final List<String> goals;
   final String? experienceLevel; // Junior, Mid-Level, Senior, Staff+
   final String? availability;    // Upcoming, Live Now, etc.
   final String? githubUrl;
@@ -26,6 +27,7 @@ class UserModel {
     this.role,
     this.skills = const [],
     this.interests = const [],
+    this.goals = const [],
     this.experienceLevel,
     this.availability,
     this.githubUrl,
@@ -46,6 +48,7 @@ class UserModel {
       role: json['role'],
       skills: List<String>.from(json['skills'] ?? []),
       interests: List<String>.from(json['interests'] ?? []),
+      goals: List<String>.from(json['goals'] ?? []),
       experienceLevel: json['experience_level'],
       availability: json['availability'],
       githubUrl: json['github_url'],
@@ -69,6 +72,7 @@ class UserModel {
       'role': role,
       'skills': skills,
       'interests': interests,
+      'goals': goals,
       'experience_level': experienceLevel,
       'availability': availability,
       'github_url': githubUrl,
@@ -88,6 +92,7 @@ class UserModel {
     String? role,
     List<String>? skills,
     List<String>? interests,
+    List<String>? goals,
     String? experienceLevel,
     String? availability,
     String? githubUrl,
@@ -105,6 +110,7 @@ class UserModel {
       role: role ?? this.role,
       skills: skills ?? this.skills,
       interests: interests ?? this.interests,
+      goals: goals ?? this.goals,
       experienceLevel: experienceLevel ?? this.experienceLevel,
       availability: availability ?? this.availability,
       githubUrl: githubUrl ?? this.githubUrl,

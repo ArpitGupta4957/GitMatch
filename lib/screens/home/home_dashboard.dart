@@ -1,18 +1,25 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/constants/spacing.dart';
 
+import '../../providers/activity_provider.dart';
 import '../../providers/feed_provider.dart';
+import '../../providers/swipe_provider.dart';
+import '../../providers/saved_provider.dart';
+import '../../providers/auth_provider.dart';
 
 import '../../widgets/github_card.dart';
 import '../filters/open_source_filter_screen.dart';
 import '../filters/hackathon_filter_screen.dart';
 import '../filters/mentorship_filter_screen.dart';
 import '../feeds/repo_feed_screen.dart';
-import '../saved/saved_items_screen.dart';
 import '../profile/profile_screen.dart';
+import '../notifications/notifications_screen.dart';
+import '../../providers/notification_provider.dart';
 
 class HomeDashboard extends StatefulWidget {
   const HomeDashboard({super.key});
@@ -28,7 +35,18 @@ class _HomeDashboardState extends State<HomeDashboard> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<FeedProvider>().loadAllFeeds();
+      final swipeProvider = context.read<SwipeProvider>();
+      final savedProvider = context.read<SavedProvider>();
+      final selfId = context.read<AuthProvider>().user?.id;
+
+      final excludedIds = <String>{};
+      excludedIds.addAll(swipeProvider.swipes.map((s) => s.itemId));
+      excludedIds.addAll(savedProvider.savedItems.map((s) => s.itemId));
+
+      context.read<FeedProvider>().loadAllFeeds(
+        excludeIds: excludedIds,
+        selfId: selfId,
+      );
     });
   }
 
@@ -37,55 +55,67 @@ class _HomeDashboardState extends State<HomeDashboard> {
     final pages = [
       _DashboardHome(),
       const RepoFeedScreen(),
-      const SavedItemsScreen(),
       const ProfileScreen(),
     ];
+    final currentIndex = _currentIndex.clamp(0, pages.length - 1).toInt();
 
     return Scaffold(
       backgroundColor: AppColors.primary,
-      body: IndexedStack(
-        index: _currentIndex,
-        children: pages,
-      ),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.secondary,
-          border: Border(
-            top: BorderSide(color: AppColors.cardBorder, width: 0.5),
+      body: IndexedStack(index: currentIndex, children: pages),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(28),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.secondary.withValues(alpha: 0.62),
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.08),
+                  width: 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.22),
+                    blurRadius: 24,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: BottomNavigationBar(
+                currentIndex: currentIndex,
+                onTap: (i) => setState(() => _currentIndex = i),
+                backgroundColor: Colors.transparent,
+                selectedItemColor: AppColors.accent,
+                unselectedItemColor: AppColors.navInactive,
+                type: BottomNavigationBarType.fixed,
+                elevation: 0,
+                selectedFontSize: 11,
+                unselectedFontSize: 11,
+                showSelectedLabels: true,
+                showUnselectedLabels: true,
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.home_outlined),
+                    activeIcon: Icon(Icons.home),
+                    label: 'HOME',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.explore_outlined),
+                    activeIcon: Icon(Icons.explore),
+                    label: 'EXPLORE',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.person_outline),
+                    activeIcon: Icon(Icons.person),
+                    label: 'PROFILE',
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (i) => setState(() => _currentIndex = i),
-          backgroundColor: AppColors.secondary,
-          selectedItemColor: AppColors.accent,
-          unselectedItemColor: AppColors.navInactive,
-          type: BottomNavigationBarType.fixed,
-          elevation: 0,
-          selectedFontSize: 11,
-          unselectedFontSize: 11,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: 'HOME',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.explore_outlined),
-              activeIcon: Icon(Icons.explore),
-              label: 'EXPLORE',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.people_outline),
-              activeIcon: Icon(Icons.people),
-              label: 'MENTORS',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
-              label: 'PROFILE',
-            ),
-          ],
         ),
       ),
     );
@@ -110,7 +140,11 @@ class _DashboardHome extends StatelessWidget {
                       color: AppColors.accent.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.terminal, color: AppColors.accent, size: 18),
+                    child: const Icon(
+                      Icons.terminal,
+                      color: AppColors.accent,
+                      size: 18,
+                    ),
                   ),
                   const SizedBox(width: 10),
                   const Text(
@@ -122,10 +156,49 @@ class _DashboardHome extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.notifications_outlined,
-                        color: AppColors.textSecondary),
-                    onPressed: () {},
+                  // Notification Bell
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.notifications_none, color: AppColors.textSecondary),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+                          );
+                        },
+                      ),
+                      Consumer<NotificationProvider>(
+                        builder: (context, notifProvider, _) {
+                          if (notifProvider.unreadCount == 0) return const SizedBox.shrink();
+                          return Positioned(
+                            right: 12,
+                            top: 12,
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 12,
+                                minHeight: 12,
+                              ),
+                              child: Text(
+                                '${notifProvider.unreadCount}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -181,7 +254,9 @@ class _DashboardHome extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const OpenSourceFilterScreen()),
+                    MaterialPageRoute(
+                      builder: (_) => const OpenSourceFilterScreen(),
+                    ),
                   );
                 },
               ),
@@ -208,7 +283,8 @@ class _DashboardHome extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) => const HackathonFilterScreen()),
+                      builder: (_) => const HackathonFilterScreen(),
+                    ),
                   );
                 },
               ),
@@ -235,7 +311,8 @@ class _DashboardHome extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) => const MentorshipFilterScreen()),
+                      builder: (_) => const MentorshipFilterScreen(),
+                    ),
                   );
                 },
               ),
@@ -261,21 +338,40 @@ class _DashboardHome extends StatelessWidget {
           SliverToBoxAdapter(
             child: Padding(
               padding: AppSpacing.screenPadding,
-              child: Column(
-                children: [
-                  _ActivityItem(
-                    icon: Icons.visibility,
-                    iconColor: Colors.orange,
-                    text: 'Recently viewed facebook/react',
-                    time: '2 hours ago',
-                  ),
-                  _ActivityItem(
-                    icon: Icons.star,
-                    iconColor: Colors.blue,
-                    text: 'You starred shadcn/ui',
-                    time: 'Yesterday',
-                  ),
-                ],
+              child: Consumer<ActivityProvider>(
+                builder: (context, activityProvider, _) {
+                  final recentVisits = activityProvider.recentRepoVisits;
+
+                  if (recentVisits.isEmpty) {
+                    return Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.secondary,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.cardBorder),
+                      ),
+                      child: Text(
+                        'No recent Activity',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    );
+                  }
+
+                  return Column(
+                    children: recentVisits.map((visit) {
+                      return _ActivityItem(
+                        icon: Icons.visibility,
+                        iconColor: Colors.orange,
+                        text: 'Recently viewed ${visit.repo.fullName}',
+                        time: _formatTimeAgo(visit.visitedAt),
+                      );
+                    }).toList(),
+                  );
+                },
               ),
             ),
           ),
@@ -327,11 +423,17 @@ class _DiscoveryCard extends StatelessWidget {
             height: 130,
             width: double.infinity,
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
               color: AppColors.surface.withValues(alpha: 0.5),
             ),
             child: Center(
-              child: Icon(icon, color: AppColors.accent.withValues(alpha: 0.5), size: 60),
+              child: Icon(
+                icon,
+                color: AppColors.accent.withValues(alpha: 0.5),
+                size: 60,
+              ),
             ),
           ),
 
@@ -445,10 +547,7 @@ class _ActivityItem extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   time,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textMuted,
-                  ),
+                  style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                 ),
               ],
             ),
@@ -457,4 +556,16 @@ class _ActivityItem extends StatelessWidget {
       ),
     );
   }
+}
+
+String _formatTimeAgo(DateTime dateTime) {
+  final diff = DateTime.now().difference(dateTime);
+  if (diff.inMinutes < 1) return 'Just now';
+  if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+  if (diff.inHours < 24) return '${diff.inHours}h ago';
+  if (diff.inDays < 7) return '${diff.inDays}d ago';
+  final weeks = (diff.inDays / 7).floor();
+  if (weeks < 4) return '${weeks}w ago';
+  final months = (diff.inDays / 30).floor();
+  return '${months}mo ago';
 }

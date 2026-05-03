@@ -13,17 +13,24 @@ class HackathonService {
     int pageSize = 10,
     String? role,
     String? status,
+    String? selfId,
   }) async {
     try {
-      final response = await _client
+      var query = _client
           .from('profiles')
           .select()
           .eq('hackathon_mode', true)
           .range(page * pageSize, (page + 1) * pageSize - 1);
 
+      final response = await query;
       var users = (response as List)
           .map((json) => UserModel.fromJson(json))
           .toList();
+
+      // Remove own profile
+      if (selfId != null) {
+        users = users.where((u) => u.id != selfId).toList();
+      }
 
       // Client-side role filter — matches against skills
       if (role != null && role != 'Any') {

@@ -6,6 +6,8 @@ import 'providers/feed_provider.dart';
 import 'providers/swipe_provider.dart';
 import 'providers/profile_provider.dart';
 import 'providers/saved_provider.dart';
+import 'providers/activity_provider.dart';
+import 'providers/notification_provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/splash/splash_screen.dart';
 import 'services/supabase_service.dart';
@@ -27,7 +29,10 @@ class GitMatchApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final swipeProvider = SwipeProvider();
     final savedProvider = SavedProvider();
-    final authProvider = AuthProvider()..init(swipeProvider, savedProvider);
+    final activityProvider = ActivityProvider();
+    final notificationProvider = NotificationProvider();
+    final authProvider = AuthProvider()
+      ..init(swipeProvider, savedProvider, activityProvider, notificationProvider);
 
     return MultiProvider(
       providers: [
@@ -36,6 +41,8 @@ class GitMatchApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: swipeProvider),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider.value(value: savedProvider),
+        ChangeNotifierProvider.value(value: activityProvider),
+        ChangeNotifierProvider.value(value: notificationProvider),
       ],
       child: MaterialApp(
         title: 'GitMatch',

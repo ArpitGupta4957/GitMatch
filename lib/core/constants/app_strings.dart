@@ -11,20 +11,25 @@ class AppStrings {
   static const String signUp = 'Sign Up';
   static const String logout = 'Logout';
   static const String collaborators = 'COLLABORATORS';
-  static const String joinThousands = 'Join thousands of developers matching today';
+  static const String joinThousands =
+      'Join thousands of developers matching today';
 
   // Onboarding
   static const String nextStep = 'Next Step';
   static const String skipIntro = 'Skip Intro';
   static const String getStarted = 'Get Started';
   static const String findNextProject = 'Find your next project';
-  static const String findNextProjectDesc = 'Discover open-source repositories tailored to your tech stack, skill level, and interests.';
+  static const String findNextProjectDesc =
+      'Discover open-source repositories tailored to your tech stack, skill level, and interests.';
   static const String findTeammates = 'Find teammates';
-  static const String findTeammatesDesc = 'Join global competitions and connect with developers who share your passion.';
+  static const String findTeammatesDesc =
+      'Join global competitions and connect with developers who share your passion.';
   static const String findMentors = 'Find mentors';
-  static const String findMentorsDesc = 'Get guidance from experienced developers. Perfect for career advice and code reviews.';
+  static const String findMentorsDesc =
+      'Get guidance from experienced developers. Perfect for career advice and code reviews.';
   static const String smartFilters = 'Smart Filters';
-  static const String smartFiltersDesc = 'Filter by language, stars, or activity.';
+  static const String smartFiltersDesc =
+      'Filter by language, stars, or activity.';
   static const String teamMatching = 'Team Matching';
   static const String teamMatchingDesc = 'Find the perfect teammates.';
   static const String expertGuidance = 'Expert Guidance';
@@ -45,23 +50,41 @@ class AppStrings {
   // Tech Stack
   static const String selectTechStack = 'Select Your Tech Stack';
   static const List<String> techOptions = [
-    'Java', 'Python', 'React', 'Flutter', 'NodeJS',
-    'Machine Learning', 'Blockchain', 'TypeScript',
-    'Go', 'Rust', 'Kotlin', 'Swift', 'C++', 'Docker',
-    'Kubernetes', 'AWS', 'GraphQL', 'PostgreSQL',
+    'Java',
+    'Python',
+    'React',
+    'Flutter',
+    'NodeJS',
+    'Machine Learning',
+    'Blockchain',
+    'TypeScript',
+    'Go',
+    'Rust',
+    'Kotlin',
+    'Swift',
+    'C++',
+    'Docker',
+    'Kubernetes',
+    'AWS',
+    'GraphQL',
+    'PostgreSQL',
   ];
 
   // Dashboard
   static const String dashboard = 'Dashboard';
-  static const String welcomeBack = 'Welcome back, developer. Ready to contribute?';
+  static const String welcomeBack =
+      'Welcome back, developer. Ready to contribute?';
   static const String exploreRepos = 'Explore Repositories';
-  static const String exploreReposDesc = 'Discover open-source projects tailored to your tech stack. Filter by language, difficulty, and trending status.';
+  static const String exploreReposDesc =
+      'Discover open-source projects tailored to your tech stack. Filter by language, difficulty, and trending status.';
   static const String browseRepos = 'Browse Repos';
   static const String findHackathons = 'Find Hackathons';
-  static const String findHackathonsDesc = 'Join global competitions, build innovative solutions, and showcase your coding skills to the world.';
+  static const String findHackathonsDesc =
+      'Join global competitions, build innovative solutions, and showcase your coding skills to the world.';
   static const String viewAllEvents = 'View All Events';
   static const String connectWithMentors = 'Connect with Mentors';
-  static const String connectWithMentorsDesc = 'Get guidance from experienced developers. Perfect for career advice, code reviews, or architectural patterns.';
+  static const String connectWithMentorsDesc =
+      'Get guidance from experienced developers. Perfect for career advice, code reviews, or architectural patterns.';
   static const String findAMentor = 'Find a Mentor';
   static const String activity = 'ACTIVITY';
   static const String newProjects = 'NEW PROJECTS';
@@ -120,22 +143,25 @@ class AppStrings {
   static const String socialLinks = 'Social Links';
   static const String matchingPreferences = 'Matching Preferences';
   static const String hackathonMode = 'Hackathon Mode';
-  static const String hackathonModeDesc = 'Allow teams to find and invite you to hackathons';
+  static const String hackathonModeDesc =
+      'Allow teams to find and invite you to hackathons';
   static const String mentorshipMode = 'Mentorship Mode';
-  static const String mentorshipModeDesc = 'Open to mentoring or finding a mentor';
+  static const String mentorshipModeDesc =
+      'Open to mentoring or finding a mentor';
   static const String deactivateAccount = 'Deactivate Account';
   static const String changeProfilePhoto = 'Change profile photo';
 
   // Rate Limit
   static const String rateLimitTitle = 'Discovery Limit Reached';
-  static const String rateLimitDesc = 'You\'ve explored 10 cards this hour. Take a moment to review your matches!';
+  static const String rateLimitDesc =
+      'You\'ve explored 10 cards this hour. Take a moment to review your matches!';
 
   // Footer
   static const String privacy = 'PRIVACY';
   static const String terms = 'TERMS';
   static const String cookies = 'COOKIES';
   static const String builtForDevelopers = 'BUILT FOR DEVELOPERS BY';
-  static const String gitMatchTeam = 'GITMATCH TEAM';
+  static const String gitMatchTeam = 'coolDevs TEAM 😎';
 
   // Nav
   static const String home = 'HOME';

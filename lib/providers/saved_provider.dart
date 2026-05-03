@@ -3,24 +3,26 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/repo_model.dart';
 import '../models/hackathon_model.dart';
 import '../models/mentor_model.dart';
-import '../services/repo_service.dart';
 import '../services/supabase_service.dart';
 
 /// SavedProvider tracks saved items locally AND persists them to Supabase
 /// `saved_items` table using item_type: 'repo' | 'hackathon' | 'mentor'.
 class SavedProvider extends ChangeNotifier {
   final SupabaseClient _client = SupabaseService.client;
-  
+
   final List<RepoModel> _savedRepos = [];
   final List<HackathonModel> _savedHackathons = [];
   final List<MentorModel> _savedMentors = [];
+  int _savedItemCount = 0;
+  bool _hasLoadedSavedItems = false;
 
   List<RepoModel> get savedRepos => _savedRepos;
   List<HackathonModel> get savedHackathons => _savedHackathons;
   List<MentorModel> get savedMentors => _savedMentors;
 
-  int get totalSaved =>
-      _savedRepos.length + _savedHackathons.length + _savedMentors.length;
+  int get totalSaved => _hasLoadedSavedItems
+      ? _savedItemCount
+      : _savedRepos.length + _savedHackathons.length + _savedMentors.length;
 
   // ─── REPOS ────────────────────────────────────────────────────────────────
 
@@ -117,12 +119,39 @@ class SavedProvider extends ChangeNotifier {
 
   /// Load saved repos from Supabase on startup
   Future<void> loadSavedItems(String userId) async {
-    final repoService = RepoService();
     try {
-      final repos = await repoService.getSavedRepos(userId);
+      final response = await _client
+          .from('saved_items')
+          .select('item_type, item_id, repositories(*)')
+          .eq('user_id', userId);
+
+      final rows = List<Map<String, dynamic>>.from(response as List);
+
       _savedRepos.clear();
-      _savedRepos.addAll(repos);
+      _savedHackathons.clear();
+      _savedMentors.clear();
+
+      for (final row in rows) {
+        final type = row['item_type'] as String?;
+        if (type == 'repo' && row['repositories'] != null) {
+          _savedRepos.add(
+            RepoModel.fromJson(
+              Map<String, dynamic>.from(row['repositories'] as Map),
+            ),
+          );
+        }
+      }
+
+      _savedItemCount = rows.length;
+      _hasLoadedSavedItems = true;
       notifyListeners();
-    } catch (_) {}
+    } catch (_) {
+      _savedRepos.clear();
+      _savedHackathons.clear();
+      _savedMentors.clear();
+      _savedItemCount = 0;
+      _hasLoadedSavedItems = true;
+      notifyListeners();
+    }
   }
 }

@@ -77,7 +77,7 @@ class RepoService {
         final data = json.decode(response.body);
         final items = data['items'] as List;
         
-        return items.map((item) {
+        final repos = items.map((item) {
           return RepoModel(
             id: item['id'].toString(),
             name: item['name'] ?? '',
@@ -96,6 +96,31 @@ class RepoService {
             githubUrl: item['html_url'],
           );
         }).toList();
+
+        // CACHE IN DB (repositories table)
+        if (repos.isNotEmpty) {
+          try {
+            final List<Map<String, dynamic>> dbRows = repos.map((r) => {
+              'id': r.id,
+              'name': r.name,
+              'owner': r.owner,
+              'description': r.description,
+              'stars': r.stars,
+              'forks': r.forks,
+              'watchers': r.watchers,
+              'tech_stack': r.techStack,
+              'is_verified': r.isVerified,
+              'is_public': r.isPublic,
+              'github_url': r.githubUrl,
+            }).toList();
+            
+            await _client.from('repositories').upsert(dbRows);
+          } catch (e) {
+            print('Failed to cache repos to DB: $e');
+          }
+        }
+
+        return repos;
       } else {
         return _getDemoRepos();
       }

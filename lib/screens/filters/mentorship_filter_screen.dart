@@ -5,7 +5,11 @@ import '../../widgets/animated_button.dart';
 import '../feeds/mentorship_feed_screen.dart';
 
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../providers/feed_provider.dart';
+import '../../providers/swipe_provider.dart';
+import '../../providers/saved_provider.dart';
+import '../../providers/auth_provider.dart';
 
 class MentorshipFilterScreen extends StatefulWidget {
   const MentorshipFilterScreen({super.key});
@@ -20,6 +24,26 @@ class _MentorshipFilterScreenState extends State<MentorshipFilterScreen> {
 
   String _experienceLevel = 'Any';
   final List<String> _levels = ['Any', 'Junior', 'Mid-Level', 'Senior', 'Staff+'];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFilters();
+  }
+
+  Future<void> _loadFilters() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _selectedDomain = prefs.getString('mentor_domain') ?? 'Career Guidance';
+      _experienceLevel = prefs.getString('mentor_level') ?? 'Any';
+    });
+  }
+
+  Future<void> _saveFilters() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('mentor_domain', _selectedDomain);
+    await prefs.setString('mentor_level', _experienceLevel);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,10 +98,21 @@ class _MentorshipFilterScreenState extends State<MentorshipFilterScreen> {
 
             AnimatedButton(
               label: 'Find Connections',
-              onPressed: () {
+              onPressed: () async {
+                await _saveFilters();
+
+                final swipeProvider = context.read<SwipeProvider>();
+                final savedProvider = context.read<SavedProvider>();
+                final selfId = context.read<AuthProvider>().user?.id;
+                final excludeIds = <String>{};
+                excludeIds.addAll(swipeProvider.swipes.map((s) => s.itemId));
+                excludeIds.addAll(savedProvider.savedItems.map((s) => s.itemId));
+
                 context.read<FeedProvider>().loadMentors(
                   domain: _selectedDomain == 'Any' ? null : _selectedDomain,
                   level: _experienceLevel == 'Any' ? null : _experienceLevel,
+                  excludeIds: excludeIds,
+                  selfId: selfId,
                 );
                 Navigator.pushReplacement(
                   context,

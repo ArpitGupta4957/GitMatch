@@ -58,14 +58,13 @@ class RecommendationService {
   /// Fetch mentors from `profiles` where mentorship_mode=true.
   /// Maps UserModel → MentorModel for the existing UI.
   static Future<List<MentorModel>> getMentors(
-      {String? domain, String? level}) async {
+      {String? domain, String? level, String? selfId}) async {
     try {
       var query = _client
           .from('profiles')
           .select()
           .eq('mentorship_mode', true);
 
-      // Filter by experience level stored in profiles.experience_level
       if (level != null && level != 'Any') {
         query = query.eq('experience_level', level);
       }
@@ -74,6 +73,11 @@ class RecommendationService {
       var users = (response as List)
           .map((json) => UserModel.fromJson(json))
           .toList();
+
+      // Remove own profile
+      if (selfId != null) {
+        users = users.where((u) => u.id != selfId).toList();
+      }
 
       // Domain filter: match against skills (client-side for now)
       if (domain != null && domain != 'Any') {

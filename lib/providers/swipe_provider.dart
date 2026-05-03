@@ -54,8 +54,8 @@ class SwipeProvider extends ChangeNotifier {
       await _client.from('swipe_history').insert({
         'user_id': userId,
         'item_id': itemId,
-        'item_type': itemType.name,    // 'repo' | 'hackathon' | 'mentor'
-        'direction': direction.name,    // 'left' | 'right'
+        'item_type': itemType.name, // 'repo' | 'hackathon' | 'mentor'
+        'direction': direction.name, // 'left' | 'right'
       });
     } catch (_) {
       // Silently fail — local state is source of truth during session
@@ -65,6 +65,11 @@ class SwipeProvider extends ChangeNotifier {
   /// Load swipe history from Supabase on app start (for deduplication)
   Future<void> loadSwipeHistory(String userId) async {
     try {
+      _swipes.clear();
+      _swipedRepoIds.clear();
+      _swipedHackathonIds.clear();
+      _swipedMentorIds.clear();
+
       final response = await _client
           .from('swipe_history')
           .select()
@@ -88,6 +93,5 @@ class SwipeProvider extends ChangeNotifier {
   bool hasSwipedHackathon(String id) => _swipedHackathonIds.contains(id);
   bool hasSwipedMentor(String id) => _swipedMentorIds.contains(id);
 
-  List<SwipeModel> getSavedSwipes() =>
-      _swipes.where((s) => s.isSaved).toList();
+  List<SwipeModel> getSavedSwipes() => _swipes.where((s) => s.isSaved).toList();
 }

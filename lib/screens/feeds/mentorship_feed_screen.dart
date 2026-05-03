@@ -52,7 +52,11 @@ class _MentorshipFeedScreenState extends State<MentorshipFeedScreen>
                       color: AppColors.accent.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.terminal, color: AppColors.accent, size: 18),
+                    child: const Icon(
+                      Icons.terminal,
+                      color: AppColors.accent,
+                      size: 18,
+                    ),
                   ),
                   const SizedBox(width: 10),
                   const Text(
@@ -64,17 +68,16 @@ class _MentorshipFeedScreenState extends State<MentorshipFeedScreen>
                     ),
                   ),
                   const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.notifications_outlined,
-                        color: AppColors.textSecondary),
-                    onPressed: () {},
-                  ),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: CircleAvatar(
                       radius: 16,
                       backgroundColor: AppColors.accent,
-                      child: const Icon(Icons.person, color: Colors.white, size: 16),
+                      child: const Icon(
+                        Icons.person,
+                        color: Colors.white,
+                        size: 16,
+                      ),
                     ),
                   ),
                 ],
@@ -104,7 +107,11 @@ class _MentorshipFeedScreenState extends State<MentorshipFeedScreen>
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
                 children: [
-                  _FilterChip(label: AppStrings.filters, icon: Icons.tune, isActive: true),
+                  _FilterChip(
+                    label: AppStrings.filters,
+                    icon: Icons.tune,
+                    isActive: true,
+                  ),
                   const SizedBox(width: 8),
                   _FilterChip(label: 'Python'),
                   const SizedBox(width: 8),
@@ -139,23 +146,32 @@ class _MentorshipFeedScreenState extends State<MentorshipFeedScreen>
                         _FeaturedMentorCard(
                           mentor: feedProvider.mentors.first,
                           onReject: () {
-                            feedProvider.removeMentor(feedProvider.mentors.first.id);
+                            feedProvider.removeMentor(
+                              feedProvider.mentors.first.id,
+                            );
                           },
                           onSave: () {
-                           final uid = context.read<AuthProvider>().user?.id ?? '';
-                            context.read<SavedProvider>().saveMentor(feedProvider.mentors.first, uid);
-                            feedProvider.removeMentor(feedProvider.mentors.first.id);
+                            final uid =
+                                context.read<AuthProvider>().user?.id ?? '';
+                            context.read<SavedProvider>().saveMentor(
+                              feedProvider.mentors.first,
+                              uid,
+                            );
+                            feedProvider.removeMentor(
+                              feedProvider.mentors.first.id,
+                            );
                           },
                         ),
 
                       const SizedBox(height: 16),
 
                       // Additional mentor tiles
-                      ...feedProvider.mentors.skip(1).map((mentor) =>
-                          _MentorListTile(
-                            mentor: mentor,
-                            onTap: () {},
-                          )),
+                      ...feedProvider.mentors
+                          .skip(1)
+                          .map(
+                            (mentor) =>
+                                _MentorListTile(mentor: mentor, onTap: () {}),
+                          ),
                     ],
                   );
                 },
@@ -232,7 +248,11 @@ class _FilterChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 14, color: isActive ? Colors.white : AppColors.textSecondary),
+            Icon(
+              icon,
+              size: 14,
+              color: isActive ? Colors.white : AppColors.textSecondary,
+            ),
             const SizedBox(width: 6),
           ],
           Text(
@@ -285,7 +305,9 @@ class _FeaturedMentorCard extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 50,
-                        backgroundColor: AppColors.accent.withValues(alpha: 0.2),
+                        backgroundColor: AppColors.accent.withValues(
+                          alpha: 0.2,
+                        ),
                         child: Text(
                           mentor.name[0],
                           style: const TextStyle(
@@ -321,7 +343,10 @@ class _FeaturedMentorCard extends StatelessWidget {
                 top: 16,
                 left: 16,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: mentor.isOffering
                         ? AppColors.accent
@@ -351,7 +376,10 @@ class _FeaturedMentorCard extends StatelessWidget {
               spacing: 8,
               children: mentor.skills.map((skill) {
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.surface,
                     borderRadius: BorderRadius.circular(100),
@@ -359,7 +387,10 @@ class _FeaturedMentorCard extends StatelessWidget {
                   ),
                   child: Text(
                     skill,
-                    style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                 );
               }).toList(),
@@ -492,10 +523,16 @@ class _MentorListTile extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
-                          color: (mentor.isOffering ? AppColors.accent : AppColors.info)
-                              .withValues(alpha: 0.2),
+                          color:
+                              (mentor.isOffering
+                                      ? AppColors.accent
+                                      : AppColors.info)
+                                  .withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -503,7 +540,9 @@ class _MentorListTile extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
-                            color: mentor.isOffering ? AppColors.accent : AppColors.info,
+                            color: mentor.isOffering
+                                ? AppColors.accent
+                                : AppColors.info,
                             letterSpacing: 0.5,
                           ),
                         ),
@@ -513,7 +552,10 @@ class _MentorListTile extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     '${mentor.title}${mentor.level != null ? ' • ${mentor.level}' : ''}',
-                    style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(

@@ -5,7 +5,11 @@ import '../../widgets/animated_button.dart';
 import '../feeds/hackathon_feed_screen.dart';
 
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../providers/feed_provider.dart';
+import '../../providers/swipe_provider.dart';
+import '../../providers/saved_provider.dart';
+import '../../providers/auth_provider.dart';
 
 class HackathonFilterScreen extends StatefulWidget {
   const HackathonFilterScreen({super.key});
@@ -20,6 +24,26 @@ class _HackathonFilterScreenState extends State<HackathonFilterScreen> {
 
   String _availability = 'Upcoming';
   final List<String> _availabilities = ['Any', 'Live Now', 'Upcoming', 'Registration Open'];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFilters();
+  }
+
+  Future<void> _loadFilters() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _selectedRole = prefs.getString('hack_role') ?? 'Any';
+      _availability = prefs.getString('hack_status') ?? 'Upcoming';
+    });
+  }
+
+  Future<void> _saveFilters() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('hack_role', _selectedRole);
+    await prefs.setString('hack_status', _availability);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,10 +98,21 @@ class _HackathonFilterScreenState extends State<HackathonFilterScreen> {
 
             AnimatedButton(
               label: 'Find Teammates',
-              onPressed: () {
+              onPressed: () async {
+                await _saveFilters();
+
+                final swipeProvider = context.read<SwipeProvider>();
+                final savedProvider = context.read<SavedProvider>();
+                final selfId = context.read<AuthProvider>().user?.id;
+                final excludeIds = <String>{};
+                excludeIds.addAll(swipeProvider.swipes.map((s) => s.itemId));
+                excludeIds.addAll(savedProvider.savedItems.map((s) => s.itemId));
+
                 context.read<FeedProvider>().loadHackathons(
                   role: _selectedRole == 'Any' ? null : _selectedRole,
                   status: _availability == 'Any' ? null : _availability,
+                  excludeIds: excludeIds,
+                  selfId: selfId,
                 );
                 Navigator.pushReplacement(
                   context,

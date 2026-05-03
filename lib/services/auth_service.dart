@@ -5,6 +5,11 @@ import '../models/user_model.dart';
 class AuthService {
   final SupabaseClient _client = SupabaseService.client;
 
+  String _githubAvatarUrl(String username) {
+    if (username.isEmpty) return '';
+    return 'https://github.com/$username.png?size=200';
+  }
+
   /// Sign in with GitHub OAuth
   Future<bool> signInWithGitHub() async {
     try {
@@ -55,13 +60,22 @@ class AuthService {
       final newProfile = {
         'id': user.id,
         'email': user.email ?? '',
-        'username': user.userMetadata?['user_name'] ??
+        'username':
+            user.userMetadata?['user_name'] ??
             user.userMetadata?['preferred_username'] ??
             user.email?.split('@').first ??
             'user',
-        'display_name': user.userMetadata?['full_name'] ??
-            user.userMetadata?['name'],
-        'avatar_url': user.userMetadata?['avatar_url'],
+        'display_name':
+            user.userMetadata?['full_name'] ?? user.userMetadata?['name'],
+        'avatar_url':
+            user.userMetadata?['avatar_url'] ??
+            user.userMetadata?['picture'] ??
+            _githubAvatarUrl(
+              user.userMetadata?['user_name'] ??
+                  user.userMetadata?['preferred_username'] ??
+                  user.email?.split('@').first ??
+                  'user',
+            ),
         'github_url': 'https://github.com/${user.userMetadata?['user_name']}',
       };
 
@@ -74,7 +88,10 @@ class AuthService {
         username: user.userMetadata?['user_name'] ?? 'user',
         email: user.email ?? '',
         displayName: user.userMetadata?['full_name'],
-        avatarUrl: user.userMetadata?['avatar_url'],
+        avatarUrl:
+            user.userMetadata?['avatar_url'] ??
+            user.userMetadata?['picture'] ??
+            _githubAvatarUrl(user.userMetadata?['user_name'] ?? 'user'),
         githubUrl: 'https://github.com/${user.userMetadata?['user_name']}',
       );
     }

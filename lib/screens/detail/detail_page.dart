@@ -1,13 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/constants/colors.dart';
 import '../../core/constants/app_strings.dart';
+import '../../providers/activity_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../models/repo_model.dart';
 
-class DetailPage extends StatelessWidget {
+class DetailPage extends StatefulWidget {
   final RepoModel repo;
 
   const DetailPage({super.key, required this.repo});
+
+  @override
+  State<DetailPage> createState() => _DetailPageState();
+}
+
+class _DetailPageState extends State<DetailPage> {
+  bool _visitRecorded = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_visitRecorded) return;
+
+    final userId = context.read<AuthProvider>().user?.id;
+    if (userId == null || userId.isEmpty) return;
+
+    _visitRecorded = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<ActivityProvider>().recordRepoVisit(userId, widget.repo);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +49,10 @@ class DetailPage extends StatelessWidget {
                   children: [
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child: const Icon(Icons.arrow_back, color: AppColors.textWhite),
+                      child: const Icon(
+                        Icons.arrow_back,
+                        color: AppColors.textWhite,
+                      ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -32,7 +60,7 @@ class DetailPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            repo.name,
+                            widget.repo.name,
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
@@ -40,7 +68,7 @@ class DetailPage extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            repo.fullName,
+                            widget.repo.fullName,
                             style: TextStyle(
                               fontSize: 12,
                               color: AppColors.textSecondary,
@@ -50,11 +78,17 @@ class DetailPage extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.share, color: AppColors.textSecondary),
+                      icon: const Icon(
+                        Icons.share,
+                        color: AppColors.textSecondary,
+                      ),
                       onPressed: () {},
                     ),
                     IconButton(
-                      icon: const Icon(Icons.more_vert, color: AppColors.textSecondary),
+                      icon: const Icon(
+                        Icons.more_vert,
+                        color: AppColors.textSecondary,
+                      ),
                       onPressed: () {},
                     ),
                   ],
@@ -83,7 +117,11 @@ class DetailPage extends StatelessWidget {
                         color: AppColors.accent.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.terminal, color: AppColors.accent, size: 28),
+                      child: const Icon(
+                        Icons.terminal,
+                        color: AppColors.accent,
+                        size: 28,
+                      ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -91,7 +129,7 @@ class DetailPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            repo.name,
+                            widget.repo.name,
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
@@ -100,7 +138,8 @@ class DetailPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            repo.longDescription ?? repo.description,
+                            widget.repo.longDescription ??
+                                widget.repo.description,
                             style: TextStyle(
                               fontSize: 13,
                               color: AppColors.textSecondary,
@@ -113,12 +152,18 @@ class DetailPage extends StatelessWidget {
                             spacing: 8,
                             runSpacing: 8,
                             children: [
-                              if (repo.isPublic)
+                              if (widget.repo.isPublic)
                                 _Badge('Public', AppColors.accent),
-                              if (repo.license != null)
-                                _Badge(repo.license!, AppColors.textSecondary),
-                              if (repo.version != null)
-                                _Badge(repo.version!, AppColors.textSecondary),
+                              if (widget.repo.license != null)
+                                _Badge(
+                                  widget.repo.license!,
+                                  AppColors.textSecondary,
+                                ),
+                              if (widget.repo.version != null)
+                                _Badge(
+                                  widget.repo.version!,
+                                  AppColors.textSecondary,
+                                ),
                             ],
                           ),
                         ],
@@ -135,11 +180,11 @@ class DetailPage extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   children: [
-                    _StatBox('STARS', repo.starsFormatted),
+                    _StatBox('STARS', widget.repo.starsFormatted),
                     const SizedBox(width: 12),
-                    _StatBox('FORKS', repo.forksFormatted),
+                    _StatBox('FORKS', widget.repo.forksFormatted),
                     const SizedBox(width: 12),
-                    _StatBox('WATCHERS', repo.watchersFormatted),
+                    _StatBox('WATCHERS', widget.repo.watchersFormatted),
                   ],
                 ),
               ),
@@ -153,8 +198,8 @@ class DetailPage extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      if (repo.githubUrl != null) {
-                        launchUrl(Uri.parse(repo.githubUrl!));
+                      if (widget.repo.githubUrl != null) {
+                        launchUrl(Uri.parse(widget.repo.githubUrl!));
                       }
                     },
                     icon: const Icon(Icons.star, color: Colors.white),
@@ -208,9 +253,9 @@ class DetailPage extends StatelessWidget {
                             ),
                           ],
                         ),
-                        if (repo.commitGrowth != null)
+                        if (widget.repo.commitGrowth != null)
                           Text(
-                            '+${repo.commitGrowth!.toInt()}%',
+                            '+${widget.repo.commitGrowth!.toInt()}%',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -232,7 +277,9 @@ class DetailPage extends StatelessWidget {
                               margin: const EdgeInsets.symmetric(horizontal: 2),
                               height: height,
                               decoration: BoxDecoration(
-                                color: AppColors.accent.withValues(alpha: 0.4 + (i * 0.05)),
+                                color: AppColors.accent.withValues(
+                                  alpha: 0.4 + (i * 0.05),
+                                ),
                                 borderRadius: BorderRadius.circular(3),
                               ),
                             ),
@@ -266,7 +313,9 @@ class DetailPage extends StatelessWidget {
                     Wrap(
                       spacing: 10,
                       runSpacing: 10,
-                      children: repo.techStack.asMap().entries.map((entry) {
+                      children: widget.repo.techStack.asMap().entries.map((
+                        entry,
+                      ) {
                         final colors = [
                           AppColors.info,
                           AppColors.warning,
@@ -368,7 +417,9 @@ class DetailPage extends StatelessWidget {
                           offset: const Offset(-30, 0),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.surface,
                               borderRadius: BorderRadius.circular(20),
@@ -393,7 +444,7 @@ class DetailPage extends StatelessWidget {
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
 
             // README section
-            if (repo.readmeSnippet != null)
+            if (widget.repo.readmeSnippet != null)
               SliverToBoxAdapter(
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -408,8 +459,11 @@ class DetailPage extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.description,
-                              color: AppColors.textSecondary, size: 18),
+                          const Icon(
+                            Icons.description,
+                            color: AppColors.textSecondary,
+                            size: 18,
+                          ),
                           const SizedBox(width: 8),
                           const Text(
                             'README.MD',
@@ -424,7 +478,7 @@ class DetailPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        repo.readmeSnippet!,
+                        widget.repo.readmeSnippet!,
                         style: TextStyle(
                           fontSize: 14,
                           color: AppColors.textPrimary,

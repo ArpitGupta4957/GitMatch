@@ -13,15 +13,22 @@ class LoginScreen extends StatelessWidget {
   Future<void> _handleGitHubLogin(BuildContext context) async {
     final auth = context.read<AuthProvider>();
     final success = await auth.signInWithGitHub();
-    if (!success && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('GitHub sign-in failed. Check your OAuth setup.'),
-          backgroundColor: Colors.red,
-        ),
-      );
+
+    if (context.mounted) {
+      if (success) {
+        // Navigate to home dashboard on successful login
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const HomeDashboard()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('GitHub sign-in failed. Check your OAuth setup.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
-    // Navigation is handled by the auth state listener in main.dart / splash
   }
 
   @override
@@ -81,31 +88,8 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Stack(
-                  children: [
-                    const Center(
-                      child: Icon(
-                        Icons.device_hub,
-                        color: AppColors.accent,
-                        size: 70,
-                      ),
-                    ),
-                    Positioned(
-                      right: -5,
-                      bottom: 30,
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: AppColors.accent,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.primary, width: 2),
-                        ),
-                        child: const Icon(Icons.favorite, color: Colors.white, size: 16),
-                      ),
-                    ),
-                  ],
-                ),
+                clipBehavior: Clip.antiAlias,
+                child: Image.asset('assets/logo_half.png', fit: BoxFit.cover),
               ),
 
               const SizedBox(height: 28),
@@ -138,7 +122,11 @@ class LoginScreen extends StatelessWidget {
                       ? const CircularProgressIndicator(color: AppColors.accent)
                       : AnimatedButton(
                           label: AppStrings.continueWithGitHub,
-                          iconWidget: const Icon(Icons.code, color: Colors.white, size: 24),
+                          iconWidget: const Icon(
+                            Icons.code,
+                            color: Colors.white,
+                            size: 24,
+                          ),
                           onPressed: () => _handleGitHubLogin(context),
                         );
                 },
@@ -197,20 +185,33 @@ class LoginScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ...List.generate(3, (i) {
+                    final icons = [
+                      Icons.code,
+                      Icons.desktop_mac,
+                      Icons.integration_instructions,
+                    ];
+                    final colors = [
+                      AppColors.info,
+                      AppColors.accent,
+                      const Color(0xFFBC8CFF),
+                    ];
                     return Container(
                       margin: const EdgeInsets.only(right: 0),
                       transform: Matrix4.translationValues(i * -8.0, 0, 0),
                       child: CircleAvatar(
                         radius: 20,
-                        backgroundColor: AppColors.surface,
-                        child: Icon(Icons.person, color: AppColors.textSecondary, size: 20),
+                        backgroundColor: colors[i].withValues(alpha: 0.2),
+                        child: Icon(icons[i], color: colors[i], size: 20),
                       ),
                     );
                   }),
                   Transform.translate(
                     offset: const Offset(-24, 0),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.surface,
                         borderRadius: BorderRadius.circular(20),
@@ -230,25 +231,11 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 AppStrings.joinThousands,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
               ),
 
               const Spacer(flex: 1),
 
-              // Footer links
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _FooterLink(AppStrings.privacy),
-                  const SizedBox(width: 24),
-                  _FooterLink(AppStrings.terms),
-                  const SizedBox(width: 24),
-                  _FooterLink(AppStrings.cookies),
-                ],
-              ),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

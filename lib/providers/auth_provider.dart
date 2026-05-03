@@ -4,11 +4,15 @@ import '../models/user_model.dart';
 import '../services/auth_service.dart';
 import 'swipe_provider.dart';
 import 'saved_provider.dart';
+import 'activity_provider.dart';
+import 'notification_provider.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
   SwipeProvider? _swipeProvider;
   SavedProvider? _savedProvider;
+  ActivityProvider? _activityProvider;
+  NotificationProvider? _notificationProvider;
 
   UserModel? _user;
   bool _isLoading = false;
@@ -25,13 +29,23 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// Call from main.dart after MultiProvider is set up
-  void init(SwipeProvider swipeProvider, SavedProvider savedProvider) {
+  void init(
+    SwipeProvider swipeProvider,
+    SavedProvider savedProvider,
+    ActivityProvider activityProvider,
+    NotificationProvider notificationProvider,
+  ) {
     _swipeProvider = swipeProvider;
     _savedProvider = savedProvider;
+    _activityProvider = activityProvider;
+    _notificationProvider = notificationProvider;
   }
 
   void _init() {
     _isAuthenticated = _authService.isAuthenticated;
+    if (_isAuthenticated) {
+      loadProfile();
+    }
     _authService.onAuthStateChange.listen((data) async {
       final event = data.event;
       if (event == AuthChangeEvent.signedIn) {
@@ -52,10 +66,12 @@ class AuthProvider extends ChangeNotifier {
     _user = await _authService.getOrCreateProfile();
     _isAuthenticated = _authService.isAuthenticated;
 
-    // Load swipe history and saved items from Supabase for deduplication
+    // Load user data for other providers
     if (_user != null) {
       _swipeProvider?.loadSwipeHistory(_user!.id);
       _savedProvider?.loadSavedItems(_user!.id);
+      _activityProvider?.init(_user!.id);
+      _notificationProvider?.init(_user!.id);
     }
 
     _isLoading = false;
@@ -76,7 +92,6 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
     return success;
   }
-
 
   Future<void> signOut() async {
     await _authService.signOut();
@@ -107,7 +122,8 @@ class AuthProvider extends ChangeNotifier {
       username: 'alex_codes_7',
       email: 'alex@example.com',
       displayName: 'Alex Rivera',
-      bio: 'Building the future of open-source collaboration. Coffee lover, Go enthusiast, and Distributed Systems architect.',
+      bio:
+          'Building the future of open-source collaboration. Coffee lover, Go enthusiast, and Distributed Systems architect.',
       role: 'professional',
       skills: ['TypeScript', 'Go', 'Rust', 'Python', 'React'],
       interests: ['Open Source', 'Hackathons', 'Mentorship'],

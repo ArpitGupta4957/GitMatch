@@ -21,6 +21,7 @@ class RepoFeedScreen extends StatefulWidget {
 
 class _RepoFeedScreenState extends State<RepoFeedScreen> {
   final int _currentIndex = 0;
+  bool _hasRequestedSwipeHistory = false;
 
   @override
   void initState() {
@@ -28,6 +29,21 @@ class _RepoFeedScreenState extends State<RepoFeedScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<FeedProvider>().loadRepos();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_hasRequestedSwipeHistory) return;
+
+    final userId = context.read<AuthProvider>().user?.id;
+    if (userId != null && userId.isNotEmpty) {
+      _hasRequestedSwipeHistory = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        context.read<SwipeProvider>().loadSwipeHistory(userId);
+      });
+    }
   }
 
   void _onSwipeLeft(RepoModel repo) {
@@ -73,7 +89,11 @@ class _RepoFeedScreenState extends State<RepoFeedScreen> {
                       color: AppColors.accent.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.terminal, color: AppColors.accent, size: 18),
+                    child: const Icon(
+                      Icons.terminal,
+                      color: AppColors.accent,
+                      size: 18,
+                    ),
                   ),
                   const SizedBox(width: 10),
                   const Text(
@@ -86,29 +106,11 @@ class _RepoFeedScreenState extends State<RepoFeedScreen> {
                   ),
                   const Spacer(),
                   IconButton(
-                    icon: const Icon(Icons.filter_list, color: AppColors.textSecondary),
+                    icon: const Icon(
+                      Icons.filter_list,
+                      color: AppColors.textSecondary,
+                    ),
                     onPressed: () {},
-                  ),
-                  Stack(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.notifications_outlined,
-                            color: AppColors.textSecondary),
-                        onPressed: () {},
-                      ),
-                      Positioned(
-                        right: 10,
-                        top: 10,
-                        child: Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: AppColors.accent,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
@@ -119,7 +121,9 @@ class _RepoFeedScreenState extends State<RepoFeedScreen> {
               child: Consumer<FeedProvider>(
                 builder: (context, feedProvider, _) {
                   if (feedProvider.isLoading) {
-                    return const LoadingWidget(message: 'Loading repositories...');
+                    return const LoadingWidget(
+                      message: 'Loading repositories...',
+                    );
                   }
                   if (feedProvider.isRateLimited) {
                     return RateLimitWidget(
@@ -131,12 +135,19 @@ class _RepoFeedScreenState extends State<RepoFeedScreen> {
                       child: Text(
                         'No more repos to discover.\nCheck back later!',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 16,
+                        ),
                       ),
                     );
                   }
 
-                  final repo = feedProvider.repos[_currentIndex.clamp(0, feedProvider.repos.length - 1)];
+                  final repo =
+                      feedProvider.repos[_currentIndex.clamp(
+                        0,
+                        feedProvider.repos.length - 1,
+                      )];
                   return _RepoSwipeCard(
                     repo: repo,
                     onSwipeLeft: () => _onSwipeLeft(repo),
@@ -154,45 +165,135 @@ class _RepoFeedScreenState extends State<RepoFeedScreen> {
               ),
             ),
 
-            // Bottom nav
-            Container(
-              decoration: const BoxDecoration(
-                color: AppColors.secondary,
-                border: Border(
-                  top: BorderSide(color: AppColors.cardBorder, width: 0.5),
+            // Swipe history
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.secondary.withValues(alpha: 0.72),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.cardBorder),
                 ),
-              ),
-              child: BottomNavigationBar(
-                currentIndex: 0,
-                backgroundColor: AppColors.secondary,
-                selectedItemColor: AppColors.accent,
-                unselectedItemColor: AppColors.navInactive,
-                type: BottomNavigationBarType.fixed,
-                elevation: 0,
-                selectedFontSize: 11,
-                unselectedFontSize: 11,
-                onTap: (i) {
-                  if (i != 0) Navigator.pop(context);
-                },
-                items: const [
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.home_outlined),
-                    activeIcon: Icon(Icons.home),
-                    label: 'FEED',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.star_outline),
-                    label: 'MATCHES',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.chat_bubble_outline),
-                    label: 'CHAT',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.person_outline),
-                    label: 'PROFILE',
-                  ),
-                ],
+                child: Consumer<SwipeProvider>(
+                  builder: (context, swipeProvider, _) {
+                    final recentSwipes = swipeProvider.swipes.reversed
+                        .take(5)
+                        .toList();
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'Swipe History',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textWhite,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Your latest left and right swipes',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textMuted,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        if (recentSwipes.isEmpty)
+                          Text(
+                            'No swipe activity yet. Start exploring repos to build history.',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textSecondary,
+                              height: 1.4,
+                            ),
+                          )
+                        else
+                          Wrap(
+                            spacing: 10,
+                            runSpacing: 10,
+                            children: recentSwipes.map((swipe) {
+                              final isRight =
+                                  swipe.direction == SwipeDirection.right;
+                              final directionColor = isRight
+                                  ? AppColors.accent
+                                  : Colors.redAccent;
+                              final directionLabel = isRight ? 'Right' : 'Left';
+                              final typeLabel = swipe.itemType.name
+                                  .toUpperCase();
+
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.8,
+                                  ),
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(
+                                    color: directionColor.withValues(
+                                      alpha: 0.25,
+                                    ),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      isRight
+                                          ? Icons.arrow_forward
+                                          : Icons.arrow_back,
+                                      size: 16,
+                                      color: directionColor,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      '$directionLabel swipe',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                        color: directionColor,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 3,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: directionColor.withValues(
+                                          alpha: 0.15,
+                                        ),
+                                        borderRadius: BorderRadius.circular(
+                                          999,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        typeLabel,
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w700,
+                                          color: directionColor,
+                                          letterSpacing: 0.6,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ],
@@ -295,7 +396,9 @@ class _RepoSwipeCardState extends State<_RepoSwipeCard>
                                   child: Icon(
                                     Icons.code,
                                     size: 80,
-                                    color: AppColors.textMuted.withValues(alpha: 0.3),
+                                    color: AppColors.textMuted.withValues(
+                                      alpha: 0.3,
+                                    ),
                                   ),
                                 ),
                                 // Owner avatar & name
@@ -330,29 +433,36 @@ class _RepoSwipeCardState extends State<_RepoSwipeCard>
                                           ),
                                           if (widget.repo.isVerified)
                                             Container(
-                                              margin: const EdgeInsets.only(top: 4),
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                                vertical: 2,
+                                              margin: const EdgeInsets.only(
+                                                top: 4,
                                               ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 8,
+                                                    vertical: 2,
+                                                  ),
                                               decoration: BoxDecoration(
-                                                color: AppColors.accent.withValues(alpha: 0.2),
+                                                color: AppColors.accent
+                                                    .withValues(alpha: 0.2),
                                                 borderRadius:
                                                     BorderRadius.circular(4),
                                               ),
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
-                                                  Icon(Icons.verified,
-                                                      color: AppColors.accent,
-                                                      size: 12),
+                                                  Icon(
+                                                    Icons.verified,
+                                                    color: AppColors.accent,
+                                                    size: 12,
+                                                  ),
                                                   const SizedBox(width: 4),
                                                   Text(
                                                     AppStrings.verifiedOwner,
                                                     style: TextStyle(
                                                       fontSize: 10,
                                                       color: AppColors.accent,
-                                                      fontWeight: FontWeight.w600,
+                                                      fontWeight:
+                                                          FontWeight.w600,
                                                     ),
                                                   ),
                                                 ],
@@ -379,7 +489,11 @@ class _RepoSwipeCardState extends State<_RepoSwipeCard>
                                 // Stats row
                                 Row(
                                   children: [
-                                    Icon(Icons.star, color: Colors.amber, size: 16),
+                                    Icon(
+                                      Icons.star,
+                                      color: Colors.amber,
+                                      size: 16,
+                                    ),
                                     const SizedBox(width: 4),
                                     Text(
                                       widget.repo.starsFormatted,
@@ -389,7 +503,11 @@ class _RepoSwipeCardState extends State<_RepoSwipeCard>
                                       ),
                                     ),
                                     const Spacer(),
-                                    Icon(Icons.call_split, color: AppColors.textSecondary, size: 16),
+                                    Icon(
+                                      Icons.call_split,
+                                      color: AppColors.textSecondary,
+                                      size: 16,
+                                    ),
                                     const SizedBox(width: 4),
                                     Text(
                                       widget.repo.forksFormatted,
@@ -403,7 +521,9 @@ class _RepoSwipeCardState extends State<_RepoSwipeCard>
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
                                         border: Border.all(
-                                          color: AppColors.accent.withValues(alpha: 0.5),
+                                          color: AppColors.accent.withValues(
+                                            alpha: 0.5,
+                                          ),
                                         ),
                                       ),
                                       child: const Icon(
@@ -458,7 +578,9 @@ class _RepoSwipeCardState extends State<_RepoSwipeCard>
                                       ),
                                       decoration: BoxDecoration(
                                         color: AppColors.surface,
-                                        borderRadius: BorderRadius.circular(100),
+                                        borderRadius: BorderRadius.circular(
+                                          100,
+                                        ),
                                         border: Border.all(
                                           color: AppColors.cardBorder,
                                         ),
@@ -466,9 +588,11 @@ class _RepoSwipeCardState extends State<_RepoSwipeCard>
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          const Icon(Icons.code,
-                                              size: 12,
-                                              color: AppColors.accent),
+                                          const Icon(
+                                            Icons.code,
+                                            size: 12,
+                                            color: AppColors.accent,
+                                          ),
                                           const SizedBox(width: 4),
                                           Text(
                                             tech,
@@ -492,15 +616,9 @@ class _RepoSwipeCardState extends State<_RepoSwipeCard>
 
                   // Swipe indicators
                   if (swipeProgress < 0)
-                    SwipeIndicator(
-                      opacity: -swipeProgress,
-                      isRight: false,
-                    ),
+                    SwipeIndicator(opacity: -swipeProgress, isRight: false),
                   if (swipeProgress > 0)
-                    SwipeIndicator(
-                      opacity: swipeProgress,
-                      isRight: true,
-                    ),
+                    SwipeIndicator(opacity: swipeProgress, isRight: true),
                 ],
               ),
             ),

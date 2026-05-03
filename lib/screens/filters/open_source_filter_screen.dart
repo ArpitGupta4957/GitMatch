@@ -5,7 +5,10 @@ import '../../widgets/animated_button.dart';
 import '../feeds/repo_feed_screen.dart';
 
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../providers/feed_provider.dart';
+import '../../providers/swipe_provider.dart';
+import '../../providers/saved_provider.dart';
 
 class OpenSourceFilterScreen extends StatefulWidget {
   const OpenSourceFilterScreen({super.key});
@@ -42,6 +45,32 @@ class _OpenSourceFilterScreenState extends State<OpenSourceFilterScreen> {
     'Java',
     'C++',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFilters();
+  }
+
+  Future<void> _loadFilters() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _selectedDifficulty = prefs.getString('os_diff') ?? 'Any';
+      _selectedSize = prefs.getString('os_size') ?? 'Any';
+      final savedStack = prefs.getStringList('os_stack');
+      if (savedStack != null) {
+        _selectedStack.clear();
+        _selectedStack.addAll(savedStack);
+      }
+    });
+  }
+
+  Future<void> _saveFilters() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('os_diff', _selectedDifficulty);
+    await prefs.setString('os_size', _selectedSize);
+    await prefs.setStringList('os_stack', _selectedStack);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -127,13 +156,20 @@ class _OpenSourceFilterScreenState extends State<OpenSourceFilterScreen> {
 
             AnimatedButton(
               label: 'Find Projects',
-              onPressed: () {
+              onPressed: () async {
+                await _saveFilters();
+
+                final swipeProvider = context.read<SwipeProvider>();
+                final savedProvider = context.read<SavedProvider>();
+                final excludeIds = <String>{};
+                excludeIds.addAll(swipeProvider.swipes.map((s) => s.itemId));
+                excludeIds.addAll(savedProvider.savedItems.map((s) => s.itemId));
+
                 context.read<FeedProvider>().loadRepos(
                   techFilter: _selectedStack.isNotEmpty ? _selectedStack : null,
-                  difficulty: _selectedDifficulty == 'Any'
-                      ? null
-                      : _selectedDifficulty,
+                  difficulty: _selectedDifficulty == 'Any' ? null : _selectedDifficulty,
                   size: _selectedSize == 'Any' ? null : _selectedSize,
+                  excludeIds: excludeIds,
                 );
                 Navigator.pushReplacement(
                   context,

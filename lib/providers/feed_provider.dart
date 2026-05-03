@@ -28,7 +28,7 @@ class FeedProvider extends ChangeNotifier {
   int get remainingSwipes => _remainingSwipes;
   Duration get timeUntilReset => _timeUntilReset;
 
-  Future<void> loadRepos({List<String>? techFilter, String? difficulty, String? size}) async {
+  Future<void> loadRepos({List<String>? techFilter, String? difficulty, String? size, Set<String> excludeIds = const {}}) async {
     _isLoading = true;
     notifyListeners();
 
@@ -40,50 +40,52 @@ class FeedProvider extends ChangeNotifier {
         size: size
       );
       // Remove duplicates
-      _removeLocalDuplicates();
+      _removeLocalDuplicates(excludeIds);
     }
 
     _isLoading = false;
     notifyListeners();
   }
 
-  Future<void> loadHackathons({String? role, String? status}) async {
+  Future<void> loadHackathons({String? role, String? status, Set<String> excludeIds = const {}, String? selfId}) async {
     _isLoading = true;
     notifyListeners();
 
     await _checkRateLimit();
     if (!_isRateLimited) {
-      _hackathons = await _hackathonService.fetchFeed(role: role, status: status);
-      _removeLocalDuplicates();
+      _hackathons = await _hackathonService.fetchFeed(role: role, status: status, selfId: selfId);
+      _removeLocalDuplicates(excludeIds);
     }
 
     _isLoading = false;
     notifyListeners();
   }
 
-  Future<void> loadMentors({String? domain, String? level}) async {
+  Future<void> loadMentors({String? domain, String? level, Set<String> excludeIds = const {}, String? selfId}) async {
     _isLoading = true;
     notifyListeners();
 
     await _checkRateLimit();
     if (!_isRateLimited) {
-      _mentors = await RecommendationService.getMentors(domain: domain, level: level);
-      _removeLocalDuplicates();
+      _mentors = await RecommendationService.getMentors(domain: domain, level: level, selfId: selfId);
+      _removeLocalDuplicates(excludeIds);
     }
 
     _isLoading = false;
     notifyListeners();
   }
 
-  Future<void> loadAllFeeds() async {
+  Future<void> loadAllFeeds({Set<String> excludeIds = const {}, String? selfId}) async {
     _isLoading = true;
     notifyListeners();
 
     await _checkRateLimit();
     if (!_isRateLimited) {
       _repos = await _repoService.fetchFeed();
-      _hackathons = await _hackathonService.fetchFeed();
+      _hackathons = await _hackathonService.fetchFeed(selfId: selfId);
       _mentors = RecommendationService.getDemoMentors();
+
+      _removeLocalDuplicates(excludeIds);
     }
 
     _isLoading = false;
@@ -124,10 +126,11 @@ class FeedProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _removeLocalDuplicates() {
-    // In a prod environment, the Supabase query would natively omit IDs 
-    // joining on the swipe_history and saved_items tables. 
-    // We enforce this local simulation for the requested Feed Generation duplicate checking.
-    // _repos.removeWhere((repo) => swipedIds.contains(repo.id));
+  void _removeLocalDuplicates(Set<String> excludeIds) {
+    if (excludeIds.isEmpty) return;
+    
+    _repos.removeWhere((repo) => excludeIds.contains(repo.id));
+    _hackathons.removeWhere((h) => excludeIds.contains(h.id));
+    _mentors.removeWhere((m) => excludeIds.contains(m.id));
   }
 }
