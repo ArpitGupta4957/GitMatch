@@ -70,7 +70,7 @@ class AuthProvider extends ChangeNotifier {
     if (_user != null) {
       _swipeProvider?.loadSwipeHistory(_user!.id);
       _savedProvider?.loadSavedItems(_user!.id);
-      _activityProvider?.init(_user!.id);
+      _activityProvider?.loadRecentRepoVisits(_user!.id);
       _notificationProvider?.init(_user!.id);
     }
 

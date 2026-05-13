@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -116,7 +117,7 @@ class RepoService {
             
             await _client.from('repositories').upsert(dbRows);
           } catch (e) {
-            print('Failed to cache repos to DB: $e');
+            debugPrint('Failed to cache repos to DB: $e');
           }
         }
 

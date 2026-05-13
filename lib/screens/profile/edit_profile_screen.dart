@@ -21,7 +21,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String? _availability;
 
   final List<String> _expLevels = ['Junior', 'Mid-Level', 'Senior', 'Staff+'];
-  final List<String> _availabilities = ['Upcoming', 'Live Now', 'Registration Open'];
+  final List<String> _availabilities = [
+    'Upcoming',
+    'Live Now',
+    'Registration Open',
+  ];
 
   @override
   void initState() {
@@ -33,9 +37,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _interestsCtrl = TextEditingController(
       text: user?.interests.join(', ') ?? '',
     );
-    _goalsCtrl = TextEditingController(
-      text: user?.goals.join(', ') ?? '',
-    );
+    _goalsCtrl = TextEditingController(text: user?.goals.join(', ') ?? '');
     _experienceLevel = user?.experienceLevel;
     _availability = user?.availability;
     _githubCtrl = TextEditingController(text: user?.githubUrl ?? '');
@@ -256,7 +258,7 @@ class _DropdownField extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: value,
+          initialValue: value,
           dropdownColor: AppColors.secondary,
           style: const TextStyle(color: AppColors.textWhite),
           decoration: InputDecoration(
@@ -276,10 +278,7 @@ class _DropdownField extends StatelessWidget {
             ),
           ),
           items: items.map((String item) {
-            return DropdownMenuItem<String>(
-              value: item,
-              child: Text(item),
-            );
+            return DropdownMenuItem<String>(value: item, child: Text(item));
           }).toList(),
           onChanged: onChanged,
         ),

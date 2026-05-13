@@ -41,7 +41,9 @@ class _HomeDashboardState extends State<HomeDashboard> {
 
       final excludedIds = <String>{};
       excludedIds.addAll(swipeProvider.swipes.map((s) => s.itemId));
-      excludedIds.addAll(savedProvider.savedItems.map((s) => s.itemId));
+      excludedIds.addAll(savedProvider.savedRepos.map((s) => s.id));
+      excludedIds.addAll(savedProvider.savedHackathons.map((s) => s.id));
+      excludedIds.addAll(savedProvider.savedMentors.map((s) => s.id));
 
       context.read<FeedProvider>().loadAllFeeds(
         excludeIds: excludedIds,

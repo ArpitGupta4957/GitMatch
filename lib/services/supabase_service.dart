@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/foundation.dart';
 
 class SupabaseService {
   SupabaseService._();
@@ -11,7 +12,7 @@ class SupabaseService {
     final anonKey = dotenv.env['SUPABASE_ANON_KEY'] ?? '';
     
     if (url.isEmpty || anonKey.isEmpty) {
-      print('WARNING: Supabase credentials not found in .env');
+      debugPrint('WARNING: Supabase credentials not found in .env');
       return;
     }
 

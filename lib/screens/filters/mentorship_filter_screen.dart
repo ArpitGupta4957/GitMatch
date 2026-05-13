@@ -99,23 +99,25 @@ class _MentorshipFilterScreenState extends State<MentorshipFilterScreen> {
             AnimatedButton(
               label: 'Find Connections',
               onPressed: () async {
-                await _saveFilters();
-
                 final swipeProvider = context.read<SwipeProvider>();
                 final savedProvider = context.read<SavedProvider>();
                 final selfId = context.read<AuthProvider>().user?.id;
+                final feedProvider = context.read<FeedProvider>();
+                final navigator = Navigator.of(context);
+
+                await _saveFilters();
+
                 final excludeIds = <String>{};
                 excludeIds.addAll(swipeProvider.swipes.map((s) => s.itemId));
-                excludeIds.addAll(savedProvider.savedItems.map((s) => s.itemId));
+                excludeIds.addAll(savedProvider.savedMentors.map((s) => s.id));
 
-                context.read<FeedProvider>().loadMentors(
+                feedProvider.loadMentors(
                   domain: _selectedDomain == 'Any' ? null : _selectedDomain,
                   level: _experienceLevel == 'Any' ? null : _experienceLevel,
                   excludeIds: excludeIds,
                   selfId: selfId,
                 );
-                Navigator.pushReplacement(
-                  context,
+                navigator.pushReplacement(
                   MaterialPageRoute(
                     builder: (context) => const MentorshipFeedScreen(),
                   ),

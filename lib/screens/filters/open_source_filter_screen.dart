@@ -157,22 +157,24 @@ class _OpenSourceFilterScreenState extends State<OpenSourceFilterScreen> {
             AnimatedButton(
               label: 'Find Projects',
               onPressed: () async {
-                await _saveFilters();
-
                 final swipeProvider = context.read<SwipeProvider>();
                 final savedProvider = context.read<SavedProvider>();
+                final feedProvider = context.read<FeedProvider>();
+                final navigator = Navigator.of(context);
+
+                await _saveFilters();
+
                 final excludeIds = <String>{};
                 excludeIds.addAll(swipeProvider.swipes.map((s) => s.itemId));
-                excludeIds.addAll(savedProvider.savedItems.map((s) => s.itemId));
+                excludeIds.addAll(savedProvider.savedRepos.map((s) => s.id));
 
-                context.read<FeedProvider>().loadRepos(
+                feedProvider.loadRepos(
                   techFilter: _selectedStack.isNotEmpty ? _selectedStack : null,
                   difficulty: _selectedDifficulty == 'Any' ? null : _selectedDifficulty,
                   size: _selectedSize == 'Any' ? null : _selectedSize,
                   excludeIds: excludeIds,
                 );
-                Navigator.pushReplacement(
-                  context,
+                navigator.pushReplacement(
                   MaterialPageRoute(
                     builder: (context) => const RepoFeedScreen(),
                   ),

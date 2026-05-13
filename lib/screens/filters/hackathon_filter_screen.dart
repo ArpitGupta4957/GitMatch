@@ -99,23 +99,25 @@ class _HackathonFilterScreenState extends State<HackathonFilterScreen> {
             AnimatedButton(
               label: 'Find Teammates',
               onPressed: () async {
-                await _saveFilters();
-
                 final swipeProvider = context.read<SwipeProvider>();
                 final savedProvider = context.read<SavedProvider>();
                 final selfId = context.read<AuthProvider>().user?.id;
+                final feedProvider = context.read<FeedProvider>();
+                final navigator = Navigator.of(context);
+
+                await _saveFilters();
+
                 final excludeIds = <String>{};
                 excludeIds.addAll(swipeProvider.swipes.map((s) => s.itemId));
-                excludeIds.addAll(savedProvider.savedItems.map((s) => s.itemId));
+                excludeIds.addAll(savedProvider.savedHackathons.map((s) => s.id));
 
-                context.read<FeedProvider>().loadHackathons(
+                feedProvider.loadHackathons(
                   role: _selectedRole == 'Any' ? null : _selectedRole,
                   status: _availability == 'Any' ? null : _availability,
                   excludeIds: excludeIds,
                   selfId: selfId,
                 );
-                Navigator.pushReplacement(
-                  context,
+                navigator.pushReplacement(
                   MaterialPageRoute(
                     builder: (context) => const HackathonFeedScreen(),
                   ),
